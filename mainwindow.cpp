@@ -1,6 +1,6 @@
-/ *! \author    Behzad Tabibian
-  *
-  */
+/*! \author    Behzad Tabibian
+ *  \date      Sep. 24, 2011
+ */
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
