@@ -11,7 +11,19 @@ img_label::img_label(QGraphicsItem *parent) :
     y=EPS;
     width=EPS;
     height=EPS;
+    this->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
+    this->editMode=true;
 
+}
+void img_label::startEdit()
+{
+    this->setFlags(0);
+    editMode=true;
+}
+void img_label::endEdit()
+{
+    this->setFlags(QGraphicsItem::ItemIsSelectable|QGraphicsItem::ItemIsMovable);
+    editMode=false;
 }
 void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,QWidget* widget)
 {
@@ -24,12 +36,24 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
         QPointF point=(*iter);
         QPointF n_point(point.x()-x,point.y()-y);
         n_points.push_back(n_point);
-        painter->drawEllipse(n_point,5,5);
+        painter->drawEllipse(n_point,2,2);
         std::cout<<i<<".  "<<n_point.x()<<","<<n_point.y()<<std::endl;
         i++;
     }
-    painter->setBrush(QBrush(QColor(100,0,0,100)));
-    painter->drawPolygon(QPolygonF(n_points),Qt::OddEvenFill);
+    if(!editMode)
+    {
+    if(!isSelected())
+    {
+    painter->setBrush(QBrush(QColor(UNSELECTED_COLOR)));
+    std::cout<<"Not Selected!"<<std::endl;
+    }
+    if(isSelected())
+    {
+    painter->setBrush(QBrush(QColor(SELECTED_COLOR)));
+    std::cout<<"Selected!"<<std::endl;
+    }
+    painter->drawConvexPolygon(QPolygonF(n_points));
+    }
 
 
 }
@@ -75,10 +99,10 @@ void img_label::set_pos()
         if (point.y()>max_y)
             max_y=point.y();
     }
-    x=min_x;
-    y=min_y;
-    width=max_x-min_x;
-    height=max_y-min_y;
+    x=min_x-EPS;
+    y=min_y-EPS;
+    width=max_x-min_x+EPS*2;
+    height=max_y-min_y+EPS*2;
     this->setPos(x,y);
     this->prepareGeometryChange();
 

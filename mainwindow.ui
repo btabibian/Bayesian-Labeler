@@ -35,6 +35,7 @@
     </property>
     <addaction name="action_TB_Open"/>
     <addaction name="action_Add_Object"/>
+    <addaction name="actionDelete"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
@@ -46,10 +47,11 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
-   <addaction name="actionOpenTB"/>
-   <addaction name="actionAdd_ObjectTB"/>
+   <addaction name="action_TB_Open"/>
+   <addaction name="action_Add_Object"/>
+   <addaction name="actionDelete"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_TB_Open">
@@ -76,34 +78,23 @@
     <string>Ctrl+A</string>
    </property>
   </action>
-  <action name="actionOpenTB">
-   <property name="text">
-    <string>Open</string>
-   </property>
-   <property name="toolTip">
-    <string>Open New Image</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="actionAdd_ObjectTB">
-   <property name="text">
-    <string>Add Object</string>
-   </property>
-   <property name="toolTip">
-    <string>Add Object to the picture</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+A</string>
-   </property>
-  </action>
   <action name="action_Save">
    <property name="text">
     <string>&amp;Save</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>&amp;Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete an Object</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
  </widget>

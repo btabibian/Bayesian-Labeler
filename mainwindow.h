@@ -39,10 +39,12 @@ private:
     img_label* get_current_label();
     void drawVertex(QPoint point);
     void DisplayBox(QPointF point);
+    void updateState();
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
     void on_action_Save_clicked();
+    void on_action_Delete_clicked();
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 };

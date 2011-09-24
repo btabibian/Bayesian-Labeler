@@ -17,17 +17,32 @@ MainWindow::MainWindow(QWidget *parent) :
     scene =new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
     connect(ui->action_TB_Open,SIGNAL(triggered()),this,SLOT(on_action_TB_Open_clicked()));
-    connect(ui->actionOpenTB,SIGNAL(triggered()),this,SLOT(on_action_TB_Open_clicked()));
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     connect(ui->action_Add_Object,SIGNAL(triggered()),this,SLOT(on_action_Add_Object_clicked()));
-    connect(ui->actionAdd_ObjectTB,SIGNAL(triggered()),this,SLOT(on_action_Add_Object_clicked()));
+    connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_action_Delete_clicked()));
     ui->graphicsView->installEventFilter(this);
     QIcon icon_open(":/open.png");
     QIcon icon_add(":/add.png");
-    ui->actionOpenTB->setIcon(icon_open);
-    ui->actionAdd_ObjectTB->setIcon(icon_add);
+    ui->action_TB_Open->setIcon(icon_open);
+    ui->action_Add_Object->setIcon(icon_add);
+    set_current_label(0);
 
 }
+void MainWindow::updateState()
+{
+
+}
+void MainWindow::on_action_Delete_clicked()
+{
+    if(get_current_label())
+    {
+        img_label* curr=get_current_label();
+        scene->removeItem(curr);
+        labels.remove(labels.indexOf(curr));
+        set_current_label(0);
+    }
+}
+
 void MainWindow::on_action_TB_Open_clicked()
 {
     current_img = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -45,7 +60,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         if((mod==ADD_LABEL) && (mouseEvent->button()==Qt::LeftButton))
             drawVertex(mouseEvent->pos());
         else if((mod==ADD_LABEL) && (mouseEvent->button()==Qt::RightButton))
-        {mod=NONE;
+        {
+            mod=NONE;
+            get_current_label()->endEdit();
             DisplayBox(mouseEvent->pos());
         }
     } else {
@@ -74,6 +91,7 @@ void MainWindow::on_action_Add_Object_clicked()
     scene->addItem(lbl);
     this->labels.push_back(lbl);
     mod= ADD_LABEL;
+    lbl->startEdit();
 }
 img_label* MainWindow::get_current_label()
 {

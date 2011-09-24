@@ -14,6 +14,8 @@
 #include <QWidget>
 #include <QGraphicsItem>
 #define EPS 5
+#define UNSELECTED_COLOR 255,0,0,100
+#define SELECTED_COLOR 0,255,0,100
 class img_label: public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -23,12 +25,15 @@ public:
     void addVertex(QPointF point);
     void setName(QString name);
     QString getName();
+    void startEdit();
+    void endEdit();
 private:
     int x;
     int y;
     int width;
     int height;
     QString name;
+    bool editMode;
     QVector<QPointF> points;
     void set_pos();
 
