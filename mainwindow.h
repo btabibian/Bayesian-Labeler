@@ -12,6 +12,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include "img_label.h"
+#include <QSettings>
 namespace Ui {
 
     class MainWindow;
@@ -40,6 +41,7 @@ private:
     void drawVertex(QPoint point);
     void DisplayBox(QPointF point);
     void updateState();
+
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();

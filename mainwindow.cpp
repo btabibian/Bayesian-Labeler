@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QTextEdit>
 #include <QtGui>
+#include <QSettings>
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
@@ -20,12 +21,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     connect(ui->action_Add_Object,SIGNAL(triggered()),this,SLOT(on_action_Add_Object_clicked()));
     connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_action_Delete_clicked()));
+    connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     ui->graphicsView->installEventFilter(this);
     QIcon icon_open(":/open.png");
     QIcon icon_add(":/add.png");
     ui->action_TB_Open->setIcon(icon_open);
     ui->action_Add_Object->setIcon(icon_add);
     set_current_label(0);
+    current_img="NONE";
 
 }
 void MainWindow::updateState()
@@ -110,12 +113,123 @@ void MainWindow::displayImage(QString file_name)
     pixmap.scaled(QSize(100,200));
     ui->graphicsView->show();
 }
+bool readXmlFile(QIODevice &device, QSettings::SettingsMap &map);
+bool writeXmlFile(QIODevice &device, const QSettings::SettingsMap &map);
 void MainWindow::on_action_Save_clicked()
 {
 
-}
+    const QSettings::Format XmlFormat =
+            QSettings::registerFormat("xml",readXmlFile, writeXmlFile);
+     QSettings::setPath(XmlFormat, QSettings::UserScope, "labels");
+      QSettings::setDefaultFormat(XmlFormat);
+      qDebug()<<"Image name:"<<current_img;
+      QString name=current_img;
+      name.replace("/","_");
+      name.replace(":","");
+     QSettings settings(XmlFormat,QSettings::UserScope,"scope", name+".lbls");
+     int lbl_count=1;
 
+     for(QVector<img_label*>::iterator i=labels.begin();i<labels.end();i++)
+     {
+         img_label* lbl=*i;
+         settings.setValue("labels/lbl"+QString::number(lbl_count),lbl->getName());
+         QVector<QPointF> vertecies= lbl->getVertecies();
+         int ver_count=1;
+         for(QVector<QPointF>::iterator j=vertecies.begin();j<vertecies.end();j++)
+         {
+             settings.setValue("labels/lbl"+QString::number(lbl_count)+"/ver"+QString::number(ver_count)+"/x",j->x());
+             settings.setValue("labels/lbl"+QString::number(lbl_count)+"/ver"+QString::number(ver_count)+"/y",j->y());
+             ver_count++;
+         }
+         lbl_count++;
+     }
+
+
+
+}
 MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+bool readXmlFile( QIODevice& device, QSettings::SettingsMap& map )
+{
+        QXmlStreamReader xmlReader( &device );
+
+        QString currentElementName;
+        while( !xmlReader.atEnd() )
+        {
+xmlReader.readNext();
+                while( xmlReader.isStartElement() )
+                {
+                        if( xmlReader.name() == "SettingsMap" )
+                        {
+                                xmlReader.readNext();
+                                continue;
+                        }
+
+                        if( !currentElementName.isEmpty() )
+                        {
+                                currentElementName += "/";
+                        }
+                        currentElementName += xmlReader.name().toString();
+                        xmlReader.readNext();
+                }
+
+                if( xmlReader.isEndElement() )
+                {
+                        continue;
+                }
+
+                if( xmlReader.isCharacters() && !xmlReader.isWhitespace() )
+                {
+                        QString key = currentElementName;
+                        QString value = xmlReader.text().toString();
+
+                        map[ key ] = value;
+
+                        currentElementName.clear();
+                }
+        }
+
+         if( xmlReader.hasError() )
+         {
+                return false;
+         }
+
+        return true;
+}
+
+bool writeXmlFile( QIODevice& device, const QSettings::SettingsMap& map )
+{
+    /*! \todo {This way of saving settings does not group labels and their information*/
+        QXmlStreamWriter xmlWriter( &device );
+        xmlWriter.setAutoFormatting( true );
+
+        xmlWriter.writeStartDocument();
+        xmlWriter.writeStartElement( "SettingsMap" );
+
+        QSettings::SettingsMap::const_iterator mi = map.begin();
+        for( mi; mi != map.end(); ++mi )
+        {
+
+                QStringList groups= mi.key().split("/");
+                foreach(QString groupName, groups )
+                {
+                        xmlWriter.writeStartElement( groupName);
+                }
+
+                xmlWriter.writeCharacters( mi.value().toString() );
+
+                foreach( QString groupName, groups )
+                {
+                        xmlWriter.writeEndElement();
+                }
+        }
+
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndDocument();
+
+        return true;
+}
+
