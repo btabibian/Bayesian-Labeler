@@ -21,14 +21,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     connect(ui->action_Add_Object,SIGNAL(triggered()),this,SLOT(on_action_Add_Object_clicked()));
     connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_action_Delete_clicked()));
+    scene->installEventFilter(this);
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     ui->graphicsView->installEventFilter(this);
-    QIcon icon_open(":/open.png");
-    QIcon icon_add(":/add.png");
-    ui->action_TB_Open->setIcon(icon_open);
-    ui->action_Add_Object->setIcon(icon_add);
     set_current_label(0);
-    current_img="NONE";
+    mod=NONE;
 
 }
 void MainWindow::updateState()
@@ -37,6 +34,7 @@ void MainWindow::updateState()
 }
 void MainWindow::on_action_Delete_clicked()
 {
+
     if(get_current_label())
     {
         img_label* curr=get_current_label();
@@ -57,45 +55,73 @@ void MainWindow::on_action_TB_Open_clicked()
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     QEvent::Type t=event->type();
-
+    if(t==QEvent::GraphicsSceneMouseRelease)
+    {
+        if(mod==NONE)
+        {
+            if(scene->selectedItems().count()>0)
+                set_current_label(static_cast<img_label*>(scene->selectedItems().at(0)));
+            else
+                set_current_label(0);
+        }
+    }
     if (t == QEvent::MouseButtonPress  ) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
         if((mod==ADD_LABEL) && (mouseEvent->button()==Qt::LeftButton))
             drawVertex(mouseEvent->pos());
         else if((mod==ADD_LABEL) && (mouseEvent->button()==Qt::RightButton))
         {
-            mod=NONE;
-            get_current_label()->endEdit();
-            DisplayBox(mouseEvent->pos());
+            CompleteEdit();
         }
+
+
     } else {
+
         // standard event processing
     }
     return QObject::eventFilter(obj, event);
 }
-void MainWindow::DisplayBox(QPointF point)
+void MainWindow::CompleteEdit()
 {
-    QString name=QInputDialog::getText(this,"Object Name","Object Name",QLineEdit::Normal);
-    this->get_current_label()->setName(name);
+    bool ok=false;
+    QString name=QInputDialog::getText(this,"Object Name","Object Name",QLineEdit::Normal,"",&ok);
+    if(ok)
+    {
+        mod=NONE;
+        if(get_current_label()!=0)
+            get_current_label()->endEdit();
+        else
+            return;
+        this->get_current_label()->setName(name);
+        updateStatus(name+tr(" Added to list of labels"));
+    }
 
 }
 void MainWindow::drawVertex(QPoint point)
 {
     img_label* lbl= get_current_label();
-    std::cout<<point.x()<<","<<point.y()<<std::endl;
     lbl->addVertex(ui->graphicsView->mapToScene(point));
     scene->update();
+
 }
 
 void MainWindow::on_action_Add_Object_clicked()
 {
+    if(mod!=NONE)
+        CompleteEdit();
     img_label* lbl=new img_label();
     this->set_current_label(lbl);
     scene->addItem(lbl);
     this->labels.push_back(lbl);
     mod= ADD_LABEL;
     lbl->startEdit();
+    updateStatus(tr("Click on screen to add vertex for a new object, Right Click to finish"));
 }
+void MainWindow::updateStatus(QString msg)
+{
+    statusBar()->showMessage(msg);
+}
+
 img_label* MainWindow::get_current_label()
 {
     return current_lbl;
@@ -150,6 +176,11 @@ void MainWindow::on_action_Save_clicked()
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_actionE_xit_triggered()
+{
+    this->close();
 }
 
 bool readXmlFile( QIODevice& device, QSettings::SettingsMap& map )
