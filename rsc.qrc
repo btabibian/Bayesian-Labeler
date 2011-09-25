@@ -1,6 +1,9 @@
-<!DOCTYPE RCC><RCC version="1.0">
-    <qresource>
+<RCC>
+    <qresource prefix="/">
         <file alias="open.png">images/open.png</file>
         <file alias="add.png">images/add.png</file>
+        <file alias="save">images/save.png</file>
+        <file alias="delete">images/delete.png</file>
+        <file alias="Exit">images/Exit.png</file>
     </qresource>
-    </RCC>
+</RCC>

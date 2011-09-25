@@ -38,8 +38,9 @@ private:
     void set_current_label(img_label* lbl);
     img_label* get_current_label();
     void drawVertex(QPoint point);
-    void DisplayBox(QPointF point);
+    void CompleteEdit();
     void updateState();
+    void updateStatus(QString msg);
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
@@ -47,6 +48,9 @@ public slots:
     void on_action_Delete_clicked();
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+
+private slots:
+    void on_actionE_xit_triggered();
 };
 
 #endif // MAINWINDOW_H

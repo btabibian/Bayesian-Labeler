@@ -34,9 +34,10 @@
      <string>File</string>
     </property>
     <addaction name="action_TB_Open"/>
+    <addaction name="action_Save"/>
+    <addaction name="separator"/>
     <addaction name="action_Add_Object"/>
     <addaction name="actionDelete"/>
-    <addaction name="action_Save"/>
     <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
@@ -50,11 +51,17 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_TB_Open"/>
+   <addaction name="action_Save"/>
+   <addaction name="separator"/>
    <addaction name="action_Add_Object"/>
    <addaction name="actionDelete"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_TB_Open">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/open.png</normaloff>:/open.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Open</string>
    </property>
@@ -63,6 +70,10 @@
    </property>
   </action>
   <action name="actionE_xit">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/Exit</normaloff>:/Exit</iconset>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
@@ -71,6 +82,10 @@
    </property>
   </action>
   <action name="action_Add_Object">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/add.png</normaloff>:/add.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Add Object</string>
    </property>
@@ -79,6 +94,10 @@
    </property>
   </action>
   <action name="action_Save">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/save</normaloff>:/save</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
@@ -87,6 +106,10 @@
    </property>
   </action>
   <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/delete</normaloff>:/delete</iconset>
+   </property>
    <property name="text">
     <string>&amp;Delete</string>
    </property>
@@ -99,6 +122,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>

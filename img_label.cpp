@@ -37,7 +37,7 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
         QPointF n_point(point.x()-x,point.y()-y);
         n_points.push_back(n_point);
         painter->drawEllipse(n_point,2,2);
-        std::cout<<i<<".  "<<n_point.x()<<","<<n_point.y()<<std::endl;
+
         i++;
     }
     if(!editMode)
@@ -45,12 +45,12 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
     if(!isSelected())
     {
     painter->setBrush(QBrush(QColor(UNSELECTED_COLOR)));
-    std::cout<<"Not Selected!"<<std::endl;
+
     }
     if(isSelected())
     {
     painter->setBrush(QBrush(QColor(SELECTED_COLOR)));
-    std::cout<<"Selected!"<<std::endl;
+
     }
     painter->drawConvexPolygon(QPolygonF(n_points));
     }
