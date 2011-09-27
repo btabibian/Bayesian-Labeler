@@ -12,11 +12,11 @@
 #define IMG_LABEL_H
 
 #include <QWidget>
-#include <QGraphicsItem>
+#include <QGraphicsPolygonItem>
 #define EPS 5
 #define UNSELECTED_COLOR 255,0,0,100
 #define SELECTED_COLOR 0,255,0,100
-class img_label: public QObject, public QGraphicsItem
+class img_label: public QObject, public QGraphicsPolygonItem
 {
     Q_OBJECT
     Q_INTERFACES(QGraphicsItem)

@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <iostream>
 img_label::img_label(QGraphicsItem *parent) :
-        QGraphicsItem(parent)
+        QGraphicsPolygonItem(parent)
 {
     x=EPS;
     y=EPS;
@@ -52,6 +52,7 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
     painter->setBrush(QBrush(QColor(SELECTED_COLOR)));
 
     }
+    setPolygon(n_points);
     painter->drawConvexPolygon(QPolygonF(n_points));
     }
 
