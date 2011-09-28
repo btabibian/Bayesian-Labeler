@@ -9,6 +9,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#define MAX_NUMBER_OF_ZOOMS 3
+
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include "img_label.h"
@@ -41,11 +43,14 @@ private:
     void CompleteEdit();
     void updateState();
     void updateStatus(QString msg);
+    int numberOfZooms;
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
     void on_action_Save_clicked();
     void on_action_Delete_clicked();
+    void on_action_ZoomIn_clicked();
+    void on_action_ZoomOut_clicked();
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 

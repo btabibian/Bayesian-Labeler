@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QTextEdit>
 #include <QtGui>
+#include <math.h>
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
@@ -20,16 +21,90 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     connect(ui->action_Add_Object,SIGNAL(triggered()),this,SLOT(on_action_Add_Object_clicked()));
     connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_action_Delete_clicked()));
+    connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(on_action_ZoomIn_clicked()));
+    connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(on_action_ZoomOut_clicked()));
     scene->installEventFilter(this);
     ui->graphicsView->installEventFilter(this);
     set_current_label(0);
     mod=NONE;
-
+    numberOfZooms=0;
 }
 void MainWindow::updateState()
 {
 
 }
+
+void MainWindow::on_action_ZoomIn_clicked()
+{
+
+    ui->graphicsView->scale(2.0, 2.0);
+    numberOfZooms++;
+
+    if (numberOfZooms >= MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomIn->setEnabled(false);
+    }
+
+    if (numberOfZooms > -MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomOut->setEnabled(true);
+    }
+
+    if (numberOfZooms == 0) {
+        updateStatus(tr("Zoom Level: 100%"));
+    } else if (numberOfZooms > 0) {
+        updateStatus(tr("Zoom Level: ")+QString::number(pow(2.0, (double)numberOfZooms)*100)+"%");
+    } else {
+        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(2.0, (double)-numberOfZooms))+"%");
+    }
+
+}
+
+void MainWindow::on_action_ZoomOut_clicked()
+{
+
+    ui->graphicsView->scale(0.5, 0.5);
+    numberOfZooms--;
+
+    if (numberOfZooms <= -MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomOut->setEnabled(false);
+    }
+
+    if (numberOfZooms < MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomIn->setEnabled(true);
+    }
+
+    if (numberOfZooms == 0) {
+        updateStatus(tr("Zoom Level: 100%"));
+    } else if (numberOfZooms > 0) {
+        updateStatus(tr("Zoom Level: ")+QString::number(pow(2.0, (double)numberOfZooms)*100)+"%");
+    } else {
+        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(2.0, (double)-numberOfZooms))+"%");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
 void MainWindow::on_action_Delete_clicked()
 {
 
@@ -131,7 +206,6 @@ void MainWindow::set_current_label(img_label* lbl)
 
 void MainWindow::displayImage(QString file_name)
 {
-
     pixmap.load(file_name);
     scene->addPixmap(pixmap);
     pixmap.scaled(QSize(100,200));
