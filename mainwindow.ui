@@ -82,6 +82,12 @@
    </property>
   </action>
   <action name="action_Add_Object">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="rsc.qrc">
      <normaloff>:/add.png</normaloff>:/add.png</iconset>

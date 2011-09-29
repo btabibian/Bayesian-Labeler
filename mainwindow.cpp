@@ -69,7 +69,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             drawVertex(mouseEvent->pos());
         else if((mod==ADD_LABEL) && (mouseEvent->button()==Qt::RightButton))
         {
-            CompleteEdit();
+            //Instead of directly changing the state use Add_Object button to toggle its state to.
+            ui->action_Add_Object->trigger();
         }
 
 
@@ -105,15 +106,19 @@ void MainWindow::drawVertex(QPoint point)
 
 void MainWindow::on_action_Add_Object_clicked()
 {
+    //The button now toggles between two states.
     if(mod!=NONE)
         CompleteEdit();
-    img_label* lbl=new img_label();
-    this->set_current_label(lbl);
-    scene->addItem(lbl);
-    this->labels.push_back(lbl);
-    mod= ADD_LABEL;
-    lbl->startEdit();
-    updateStatus(tr("Click on screen to add vertex for a new object, Right Click to finish"));
+    else
+    {
+        img_label* lbl=new img_label();
+        this->set_current_label(lbl);
+        scene->addItem(lbl);
+        this->labels.push_back(lbl);
+        mod= ADD_LABEL;
+        lbl->startEdit();
+        updateStatus(tr("Click on screen to add vertex for a new object, Right Click to finish"));
+    }
 }
 void MainWindow::updateStatus(QString msg)
 {
