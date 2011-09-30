@@ -10,6 +10,7 @@
 #define MAINWINDOW_H
 
 #define MAX_NUMBER_OF_ZOOMS 3
+#define MOUSE_WHEEL_SENSITIVITY 1
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -44,6 +45,7 @@ private:
     void updateState();
     void updateStatus(QString msg);
     int numberOfZooms;
+    int wheelDeltaInDegrees;
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
@@ -53,7 +55,7 @@ public slots:
     void on_action_ZoomOut_clicked();
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
-
+    void wheelEvent(QWheelEvent *event);
 private slots:
     void on_actionE_xit_triggered();
 };

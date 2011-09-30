@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     set_current_label(0);
     mod=NONE;
     numberOfZooms=0;
+    wheelDeltaInDegrees=0;
 }
 void MainWindow::updateState()
 {
@@ -37,11 +38,11 @@ void MainWindow::updateState()
 void MainWindow::on_action_ZoomIn_clicked()
 {
 
-    ui->graphicsView->scale(2.0, 2.0);
-    numberOfZooms++;
-
     if (numberOfZooms >= MAX_NUMBER_OF_ZOOMS) {
         ui->actionZoomIn->setEnabled(false);
+    } else {
+        ui->graphicsView->scale(2.0, 2.0);
+        numberOfZooms++;
     }
 
     if (numberOfZooms > -MAX_NUMBER_OF_ZOOMS) {
@@ -61,11 +62,11 @@ void MainWindow::on_action_ZoomIn_clicked()
 void MainWindow::on_action_ZoomOut_clicked()
 {
 
-    ui->graphicsView->scale(0.5, 0.5);
-    numberOfZooms--;
-
     if (numberOfZooms <= -MAX_NUMBER_OF_ZOOMS) {
         ui->actionZoomOut->setEnabled(false);
+    } else {
+        ui->graphicsView->scale(0.5, 0.5);
+        numberOfZooms--;
     }
 
     if (numberOfZooms < MAX_NUMBER_OF_ZOOMS) {
@@ -79,29 +80,6 @@ void MainWindow::on_action_ZoomOut_clicked()
     } else {
         updateStatus(tr("Zoom Level: ")+QString::number(100/pow(2.0, (double)-numberOfZooms))+"%");
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 
@@ -125,6 +103,22 @@ void MainWindow::on_action_TB_Open_clicked()
     displayImage(current_img);
 
 }
+
+void MainWindow::wheelEvent(QWheelEvent *event)
+{
+
+    wheelDeltaInDegrees += (event->delta() / 8);
+
+    if (wheelDeltaInDegrees >= MOUSE_WHEEL_SENSITIVITY) { // wheel moved forward
+        on_action_ZoomIn_clicked();
+        wheelDeltaInDegrees = 0;
+    } else if (wheelDeltaInDegrees <= -MOUSE_WHEEL_SENSITIVITY) { // wheel moved backward
+        on_action_ZoomOut_clicked();
+        wheelDeltaInDegrees = 0;
+    }
+
+}
+
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     QEvent::Type t=event->type();
