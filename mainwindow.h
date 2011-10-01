@@ -11,6 +11,7 @@
 
 #define MAX_NUMBER_OF_ZOOMS 3
 #define MOUSE_WHEEL_SENSITIVITY 1
+#define ZOOM_SCALE 1.3
 
 #include <QMainWindow>
 #include <QGraphicsScene>

@@ -41,7 +41,7 @@ void MainWindow::on_action_ZoomIn_clicked()
     if (numberOfZooms >= MAX_NUMBER_OF_ZOOMS) {
         ui->actionZoomIn->setEnabled(false);
     } else {
-        ui->graphicsView->scale(2.0, 2.0);
+        ui->graphicsView->scale(ZOOM_SCALE, ZOOM_SCALE);
         numberOfZooms++;
     }
 
@@ -52,9 +52,9 @@ void MainWindow::on_action_ZoomIn_clicked()
     if (numberOfZooms == 0) {
         updateStatus(tr("Zoom Level: 100%"));
     } else if (numberOfZooms > 0) {
-        updateStatus(tr("Zoom Level: ")+QString::number(pow(2.0, (double)numberOfZooms)*100)+"%");
+        updateStatus(tr("Zoom Level: ")+QString::number(pow(ZOOM_SCALE, (double)numberOfZooms)*100,'f',0)+"%");
     } else {
-        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(2.0, (double)-numberOfZooms))+"%");
+        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(ZOOM_SCALE, (double)-numberOfZooms),'f',0)+"%");
     }
 
 }
@@ -65,7 +65,7 @@ void MainWindow::on_action_ZoomOut_clicked()
     if (numberOfZooms <= -MAX_NUMBER_OF_ZOOMS) {
         ui->actionZoomOut->setEnabled(false);
     } else {
-        ui->graphicsView->scale(0.5, 0.5);
+        ui->graphicsView->scale(1/ZOOM_SCALE, 1/ZOOM_SCALE);
         numberOfZooms--;
     }
 
@@ -76,9 +76,9 @@ void MainWindow::on_action_ZoomOut_clicked()
     if (numberOfZooms == 0) {
         updateStatus(tr("Zoom Level: 100%"));
     } else if (numberOfZooms > 0) {
-        updateStatus(tr("Zoom Level: ")+QString::number(pow(2.0, (double)numberOfZooms)*100)+"%");
+        updateStatus(tr("Zoom Level: ")+QString::number(pow(ZOOM_SCALE, (double)numberOfZooms)*100,'f',0)+"%");
     } else {
-        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(2.0, (double)-numberOfZooms))+"%");
+        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(ZOOM_SCALE, (double)-numberOfZooms),'f',0)+"%");
     }
 
 }
