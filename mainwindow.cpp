@@ -29,6 +29,38 @@ MainWindow::MainWindow(QWidget *parent) :
     mod=NONE;
     numberOfZooms=0;
     wheelDeltaInDegrees=0;
+
+    // add a dock to the main window
+    QDockWidget *thumbnailDock = new QDockWidget(tr("Thumbnail Viewer"), this);
+    thumbnailDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::LeftDockWidgetArea, thumbnailDock);
+
+    // create a thumbnail list
+    QListWidget *thumbnailWidget = new QListWidget();
+    thumbnailWidget->setViewMode(QListView::IconMode);
+    thumbnailWidget->setIconSize(QSize(150, 150));
+    thumbnailWidget->setDragEnabled(false);
+
+    // set the size of the dock
+    thumbnailDock->setFixedWidth(170);
+    thumbnailDock->setMinimumHeight(200);
+
+    // create thumbnails
+    QPixmap *testThumbnail = new QPixmap("/Users/William/Downloads/test.png");
+    QIcon *tt1 = new QIcon(*testThumbnail);
+    QListWidgetItem *item = new QListWidgetItem(*tt1, "hero");
+
+    QPixmap *testThumbnail1 = new QPixmap("/Users/William/Downloads/test.png");
+    QIcon *tt2 = new QIcon(*testThumbnail1);
+    QListWidgetItem *item1 = new QListWidgetItem(*tt2, "hero");
+
+    // add thumbnails to the list
+    thumbnailWidget->addItem(item);
+    thumbnailWidget->addItem(item1);
+
+    // add the thumbnail list to the dock
+    thumbnailDock->setWidget(thumbnailWidget);
+
 }
 void MainWindow::updateState()
 {
