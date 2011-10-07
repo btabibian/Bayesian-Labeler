@@ -15,6 +15,11 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include <QModelIndex>
+#include <QListWidget>
+#include <QFileSystemModel>
+#include <QDockWidget>
+#include <QTreeView>
 #include "img_label.h"
 namespace Ui {
 
@@ -47,6 +52,11 @@ private:
     void updateStatus(QString msg);
     int numberOfZooms;
     int wheelDeltaInDegrees;
+    QDockWidget *dirDock;
+    QDockWidget *thumbnailDock;
+    QFileSystemModel *dirModel;
+    QTreeView *treeView;
+    QListWidget *thumbnailList;
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
@@ -58,6 +68,9 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 private slots:
+    void treeViewDirectoryCollapsed(QModelIndex index);
+    void treeViewDirectoryExpanded(QModelIndex index);
+    void treeViewDirectoryChanged(QModelIndex index);
     void on_actionE_xit_triggered();
 };
 

@@ -30,38 +30,83 @@ MainWindow::MainWindow(QWidget *parent) :
     numberOfZooms=0;
     wheelDeltaInDegrees=0;
 
-    // add a dock to the main window
-    QDockWidget *thumbnailDock = new QDockWidget(tr("Thumbnail Viewer"), this);
+    // add the docks to the main window
+    dirDock = new QDockWidget(tr("Directories"));
+    dirDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::LeftDockWidgetArea, dirDock);
+    thumbnailDock = new QDockWidget(tr("Thumbnail Viewer"));
     thumbnailDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::LeftDockWidgetArea, thumbnailDock);
+    splitDockWidget(dirDock, thumbnailDock, Qt::Vertical);
 
-    // create a thumbnail list
-    QListWidget *thumbnailWidget = new QListWidget();
-    thumbnailWidget->setViewMode(QListView::IconMode);
-    thumbnailWidget->setIconSize(QSize(150, 150));
-    thumbnailWidget->setDragEnabled(false);
+    // create the directory model and treeview
+    dirModel = new QFileSystemModel();
+    dirModel->setRootPath("/");
+    treeView = new QTreeView();
+    treeView->setModel(dirModel);
+    treeView->setColumnHidden(1, true);
+    treeView->setColumnHidden(2, true);
+    treeView->setColumnHidden(3, true);
+    connect(treeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(treeViewDirectoryCollapsed(QModelIndex)));
+    connect(treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(treeViewDirectoryExpanded(QModelIndex)));
 
-    // set the size of the dock
-    thumbnailDock->setFixedWidth(170);
-    thumbnailDock->setMinimumHeight(200);
+    // create the thumbnail list widget
+    thumbnailList = new QListWidget();
+    thumbnailList->setViewMode(QListView::IconMode);
+    thumbnailList->setIconSize(QSize(150, 150));
+    thumbnailList->setDragEnabled(false);
 
-    // create thumbnails
-    QPixmap *testThumbnail = new QPixmap("/Users/William/Downloads/test.png");
-    QIcon *tt1 = new QIcon(*testThumbnail);
-    QListWidgetItem *item = new QListWidgetItem(*tt1, "hero");
+    // set the sizes of the docks
+    dirDock->setMinimumSize(175, 200);
+    thumbnailDock->setMinimumSize(175, 200);
 
-    QPixmap *testThumbnail1 = new QPixmap("/Users/William/Downloads/test.png");
-    QIcon *tt2 = new QIcon(*testThumbnail1);
-    QListWidgetItem *item1 = new QListWidgetItem(*tt2, "hero");
-
-    // add thumbnails to the list
-    thumbnailWidget->addItem(item);
-    thumbnailWidget->addItem(item1);
-
-    // add the thumbnail list to the dock
-    thumbnailDock->setWidget(thumbnailWidget);
+    // add the widgets to their docks
+    dirDock->setWidget(treeView);
+    thumbnailDock->setWidget(thumbnailList);
 
 }
+
+void MainWindow::treeViewDirectoryCollapsed(QModelIndex index)
+{
+    treeViewDirectoryChanged(dirModel->parent(index));
+}
+
+void MainWindow::treeViewDirectoryExpanded(QModelIndex index)
+{
+    treeViewDirectoryChanged(index);
+}
+
+void MainWindow::treeViewDirectoryChanged(QModelIndex index)
+{
+
+    // clear all the old thumbnails from the previous directory
+    thumbnailList->clear();
+
+    // get the new directory
+    QString directoryPath = dirModel->filePath(index);
+    QDir directory(directoryPath);
+
+    // quick fix for formatting issues when in the root directory
+    if (!directoryPath.endsWith("/")) {
+        directoryPath.append("/");
+    }
+
+    // filter for image files only - according to QImageReader::supportedImageFormats
+    QStringList filter;
+    filter << "*.bmp" << "*.gif" << "*.jpg" << "*.jpeg" << "*.mng" << "*.png" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tiff" << "*.tif" << "*.xbm" << "*.xpm" << "*.svg";
+    QStringList files = directory.entryList(filter);
+
+    // increment through the list of image files
+    for (int i=0; i < files.size(); i++) {
+
+        // create a thumbnail and add it to the list
+        QIcon *thumbnail = new QIcon(directoryPath + files.at(i));
+        QListWidgetItem *listItem = new QListWidgetItem(*thumbnail, files.at(i));
+        thumbnailList->addItem(listItem);
+
+    }
+
+}
+
 void MainWindow::updateState()
 {
 
@@ -245,6 +290,11 @@ void MainWindow::on_action_Save_clicked()
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete treeView;
+    delete dirModel;
+    delete dirDock;
+    delete thumbnailList;
+    delete thumbnailDock;
 }
 
 void MainWindow::on_actionE_xit_triggered()
