@@ -50,8 +50,7 @@ void MainWindow::on_action_TB_Open_clicked()
                                                "",
                                                tr("Files (*.*)"));
     displayImage(current_img);
-
-}
+    loadImageData(current_img);
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     QEvent::Type t=event->type();
@@ -87,20 +86,28 @@ void MainWindow::CompleteEdit()
     QString name=QInputDialog::getText(this,"Object Name","Object Name",QLineEdit::Normal,"",&ok);
     if(ok)
     {
-        mod=NONE;
-        if(get_current_label()!=0)
-            get_current_label()->endEdit();
-        else
-            return;
-        this->get_current_label()->setName(name);
-        updateStatus(name+tr(" Added to list of labels"));
+        updateLabel(name);
     }
 
 }
-void MainWindow::drawVertex(QPoint point)
+void MainWindow::updateLabel(const QString& name)
+{
+    mod=NONE;
+    if(get_current_label()!=0)
+        get_current_label()->endEdit();
+    else
+        return;
+    this->get_current_label()->setName(name);
+    updateStatus(name+tr(" Added to list of labels"));
+}
+
+void MainWindow::drawVertex(QPoint point,bool mapped)
 {
     img_label* lbl= get_current_label();
-    lbl->addVertex(ui->graphicsView->mapToScene(point));
+    if(!mapped)
+        lbl->addVertex(ui->graphicsView->mapToScene(point));
+    else
+        lbl->addVertex(point);
     scene->update();
 
 }
@@ -139,36 +146,21 @@ void MainWindow::displayImage(QString file_name)
     pixmap.scaled(QSize(100,200));
     ui->graphicsView->show();
 }
-bool readXmlFile(QIODevice &device, QSettings::SettingsMap &map);
-bool writeXmlFile(QIODevice &device, const QSettings::SettingsMap &map);
+
+void MainWindow::loadImageData(QString file)
+{
+    qDebug()<<"Image name:"<<current_img;
+    QString name=current_img;
+    name+=".lbls.xml";
+    readXmlFile(name);
+}
 void MainWindow::on_action_Save_clicked()
 {
 
-    const QSettings::Format XmlFormat =
-            QSettings::registerFormat("xml",readXmlFile, writeXmlFile);
-     QSettings::setPath(XmlFormat, QSettings::UserScope, "labels");
-      QSettings::setDefaultFormat(XmlFormat);
-      qDebug()<<"Image name:"<<current_img;
-      QString name=current_img;
-      name.replace("/","_");
-      name.replace(":","");
-     QSettings settings(XmlFormat,QSettings::UserScope,"scope", name+".lbls");
-     int lbl_count=1;
-
-     for(QVector<img_label*>::iterator i=labels.begin();i<labels.end();i++)
-     {
-         img_label* lbl=*i;
-         settings.setValue("labels/lbl"+QString::number(lbl_count),lbl->getName());
-         QVector<QPointF> vertecies= lbl->getVertecies();
-         int ver_count=1;
-         for(QVector<QPointF>::iterator j=vertecies.begin();j<vertecies.end();j++)
-         {
-             settings.setValue("labels/lbl"+QString::number(lbl_count)+"/ver"+QString::number(ver_count)+"/x",j->x());
-             settings.setValue("labels/lbl"+QString::number(lbl_count)+"/ver"+QString::number(ver_count)+"/y",j->y());
-             ver_count++;
-         }
-         lbl_count++;
-     }
+    qDebug()<<"Image name:"<<current_img;
+    QString name=current_img;
+    name+=".lbls.xml";
+    writeXmlFile(name);
 
 
 
@@ -183,84 +175,150 @@ void MainWindow::on_actionE_xit_triggered()
     this->close();
 }
 
-bool readXmlFile( QIODevice& device, QSettings::SettingsMap& map )
+bool MainWindow::readXmlFile(QString& file)
 {
-        QXmlStreamReader xmlReader( &device );
+    int lbl_count=0;
+    int x_pos=0;
+    int y_pos=0;
+    int pnt =0;
+    QString name;
+    QFile file_handle( file );
+    if(!file_handle.open( QIODevice::ReadOnly ))
+    {
+        qDebug()<<"File Not Found!";
+        return false;
+    }
+    QXmlStreamReader xmlReader( &file_handle );
 
-        QString currentElementName;
-        while( !xmlReader.atEnd() )
+    while( !xmlReader.atEnd() )
+    {
+
+        xmlReader.readNext();
+
+        while( xmlReader.isStartElement() )
         {
-xmlReader.readNext();
-                while( xmlReader.isStartElement() )
-                {
-                        if( xmlReader.name() == "SettingsMap" )
-                        {
-                                xmlReader.readNext();
-                                continue;
-                        }
 
-                        if( !currentElementName.isEmpty() )
-                        {
-                                currentElementName += "/";
-                        }
-                        currentElementName += xmlReader.name().toString();
-                        xmlReader.readNext();
-                }
+            if( xmlReader.name() == "labels" )
+            {
 
-                if( xmlReader.isEndElement() )
-                {
-                        continue;
-                }
+                xmlReader.readNext();
 
-                if( xmlReader.isCharacters() && !xmlReader.isWhitespace() )
-                {
-                        QString key = currentElementName;
-                        QString value = xmlReader.text().toString();
+                continue;
+            }
+            if( xmlReader.name() == "lbl"+QString::number(lbl_count) )
+            {
+                lbl_count++;
+                xmlReader.readNext();
+                xmlReader.readNext();
 
-                        map[ key ] = value;
+                x_pos=xmlReader.readElementText().toInt();
 
-                        currentElementName.clear();
-                }
+                xmlReader.readNext();
+
+                xmlReader.readNext();
+
+                y_pos=xmlReader.readElementText().toInt();
+
+                xmlReader.readNext();
+                xmlReader.readNext();
+
+                name=xmlReader.readElementText();
+                xmlReader.readNext();
+                ui->action_Add_Object->trigger();
+                pnt=0;
+                continue;
+            }
+            if( xmlReader.name() == "pnt"+QString::number(pnt))
+            {
+                int x=0;
+                int y=0;
+                xmlReader.readNext();
+                xmlReader.readNext();
+                x=xmlReader.readElementText().toInt();
+                xmlReader.readNext();
+                xmlReader.readNext();
+                y=xmlReader.readElementText().toInt();
+                xmlReader.readNext();
+                xmlReader.readNext();
+
+                xmlReader.readNext();
+
+                drawVertex(QPoint(x,y),true);
+                pnt++;
+                continue;
+            }
+            xmlReader.readNext();
+
         }
+        if( xmlReader.isEndElement() )
+        {
 
-         if( xmlReader.hasError() )
-         {
-                return false;
-         }
+            updateLabel("None");
+            current_lbl->setPos(x_pos,y_pos);
+            current_lbl->setName(name);
+            continue;
+        }
+    }
 
-        return true;
+    if( xmlReader.hasError() )
+    {
+        return false;
+    }
+
+    return true;
 }
 
-bool writeXmlFile( QIODevice& device, const QSettings::SettingsMap& map )
+bool MainWindow::writeXmlFile( QString& file )
 {
     /*! \todo {This way of saving settings does not group labels and their information*/
-        QXmlStreamWriter xmlWriter( &device );
-        xmlWriter.setAutoFormatting( true );
+    qDebug()<<file;
+    QFile file_handle( file );
+    file_handle.open( QIODevice::WriteOnly );
+    QXmlStreamWriter xmlWriter(&file_handle );
+    xmlWriter.setAutoFormatting( true );
 
-        xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement( "SettingsMap" );
+    xmlWriter.writeStartDocument();
+    xmlWriter.writeStartElement( "labels" );
 
-        QSettings::SettingsMap::const_iterator mi = map.begin();
-        for( mi; mi != map.end(); ++mi )
-        {
 
-                QStringList groups= mi.key().split("/");
-                foreach(QString groupName, groups )
-                {
-                        xmlWriter.writeStartElement( groupName);
-                }
-
-                xmlWriter.writeCharacters( mi.value().toString() );
-
-                foreach( QString groupName, groups )
-                {
-                        xmlWriter.writeEndElement();
-                }
-        }
-
+    QVector<img_label*>::const_iterator mi=labels.begin();
+    int i=0;
+    for( mi; mi != labels.end(); ++mi )
+    {
+        img_label* lbl=*mi;
+        xmlWriter.writeStartElement( "lbl"+QString::number(i) );
+        xmlWriter.writeStartElement("x");
+        xmlWriter.writeCharacters(QString::number(lbl->pos().x()));
         xmlWriter.writeEndElement();
-        xmlWriter.writeEndDocument();
+        xmlWriter.writeStartElement("y");
+        xmlWriter.writeCharacters(QString::number(lbl->pos().y()));
+        xmlWriter.writeEndElement();
+        xmlWriter.writeStartElement("name");
+        xmlWriter.writeCharacters(lbl->getName());
+        xmlWriter.writeEndElement();
+        int j=0;
+        foreach(QPointF ver, lbl->getVertecies())
+        {
+            xmlWriter.writeStartElement( "pnt"+QString::number(j) );
+            xmlWriter.writeStartElement("x");
 
-        return true;
+
+
+            xmlWriter.writeCharacters(QString::number(ver.x()));
+            xmlWriter.writeEndElement();
+            xmlWriter.writeStartElement("y");
+            xmlWriter.writeCharacters(QString::number(ver.y()));
+            xmlWriter.writeEndElement();
+            xmlWriter.writeEndElement();
+            j++;
+        }
+        xmlWriter.writeEndElement();
+        i++;
+    }
+
+    xmlWriter.writeEndElement();
+    xmlWriter.writeEndDocument();
+    file_handle.close();
+    return true;
 }
 
