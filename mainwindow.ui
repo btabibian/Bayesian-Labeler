@@ -50,6 +50,8 @@
     <addaction name="separator"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomReset"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -176,6 +178,17 @@
    </property>
    <property name="text">
     <string>Show Thumbnails</string>
+   </property>
+  </action>
+  <action name="actionZoomReset">
+   <property name="text">
+    <string>Reset Zoom</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset Zoom Level</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
  </widget>

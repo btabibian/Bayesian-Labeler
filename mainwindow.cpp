@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(on_action_ZoomOut_clicked()));
     connect(ui->actionShow_Directories, SIGNAL(toggled(bool)), this, SLOT(showDirectoriesToggled(bool)));
     connect(ui->actionShow_Thumbnails, SIGNAL(toggled(bool)), this, SLOT(showThumbnailsToggled(bool)));
+    connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(on_action_ZoomReset_Clicked()));
     scene->installEventFilter(this);
     ui->graphicsView->installEventFilter(this);
     set_current_label(0);
@@ -196,6 +197,15 @@ void MainWindow::on_action_ZoomIn_clicked()
 
 }
 
+void MainWindow::on_action_ZoomReset_Clicked()
+{
+    ui->actionZoomIn->setEnabled(true);
+    ui->actionZoomOut->setEnabled(true);
+    ui->graphicsView->resetMatrix();
+    updateStatus(tr("Zoom Level: 100%"));
+    numberOfZooms = 0;
+}
+
 void MainWindow::on_action_ZoomOut_clicked()
 {
 
@@ -339,6 +349,7 @@ void MainWindow::set_current_label(img_label* lbl)
 void MainWindow::displayImage(QString file_name)
 {
     scene->clear();
+    on_action_ZoomReset_Clicked();
     pixmap.load(file_name);
     scene->addPixmap(pixmap);
     pixmap.scaled(QSize(100,200));

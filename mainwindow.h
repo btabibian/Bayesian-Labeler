@@ -65,6 +65,7 @@ public slots:
     void on_action_Delete_clicked();
     void on_action_ZoomIn_clicked();
     void on_action_ZoomOut_clicked();
+    void on_action_ZoomReset_Clicked();
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
