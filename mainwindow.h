@@ -57,6 +57,7 @@ private:
     QFileSystemModel *dirModel;
     QTreeView *treeView;
     QListWidget *thumbnailList;
+    QString directoryPath;
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
@@ -68,9 +69,11 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 private slots:
+    void thumbnailListItemDoubleClicked(QListWidgetItem *);
     void treeViewDirectoryCollapsed(QModelIndex index);
     void treeViewDirectoryExpanded(QModelIndex index);
     void treeViewDirectoryChanged(QModelIndex index);
+    void treeViewDoubleClicked(QModelIndex index);
     void on_actionE_xit_triggered();
 };
 

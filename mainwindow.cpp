@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     treeView->setColumnHidden(1, true);
     treeView->setColumnHidden(2, true);
     treeView->setColumnHidden(3, true);
+    connect(treeView, SIGNAL(activated(QModelIndex)), this, SLOT(treeViewDoubleClicked(QModelIndex)));
     connect(treeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(treeViewDirectoryCollapsed(QModelIndex)));
     connect(treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(treeViewDirectoryExpanded(QModelIndex)));
 
@@ -54,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     thumbnailList->setViewMode(QListView::IconMode);
     thumbnailList->setIconSize(QSize(150, 150));
     thumbnailList->setDragEnabled(false);
+    connect(thumbnailList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(thumbnailListItemDoubleClicked(QListWidgetItem *)));
 
     // set the sizes of the docks
     dirDock->setMinimumSize(175, 200);
@@ -63,6 +65,21 @@ MainWindow::MainWindow(QWidget *parent) :
     dirDock->setWidget(treeView);
     thumbnailDock->setWidget(thumbnailList);
 
+}
+
+void MainWindow::thumbnailListItemDoubleClicked(QListWidgetItem *item)
+{
+    QString fileName(item->text());
+    QString fullPath(directoryPath);
+    fullPath.append(fileName);
+    displayImage(fullPath);
+}
+
+void MainWindow::treeViewDoubleClicked(QModelIndex index)
+{
+    if (!dirModel->isDir(index)) {
+        displayImage(dirModel->filePath(index));
+    }
 }
 
 void MainWindow::treeViewDirectoryCollapsed(QModelIndex index)
@@ -79,10 +96,13 @@ void MainWindow::treeViewDirectoryChanged(QModelIndex index)
 {
 
     // clear all the old thumbnails from the previous directory
+    for (int i=0; i<thumbnailList->count(); i++) {
+        delete thumbnailList->item(i);
+    }
     thumbnailList->clear();
 
     // get the new directory
-    QString directoryPath = dirModel->filePath(index);
+    directoryPath = dirModel->filePath(index);
     QDir directory(directoryPath);
 
     // quick fix for formatting issues when in the root directory
@@ -198,6 +218,7 @@ void MainWindow::wheelEvent(QWheelEvent *event)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
+
     QEvent::Type t=event->type();
     if(t==QEvent::GraphicsSceneMouseRelease)
     {
@@ -277,6 +298,7 @@ void MainWindow::set_current_label(img_label* lbl)
 
 void MainWindow::displayImage(QString file_name)
 {
+    scene->clear();
     pixmap.load(file_name);
     scene->addPixmap(pixmap);
     pixmap.scaled(QSize(100,200));
