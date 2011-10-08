@@ -69,6 +69,10 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 private slots:
+    void dirDockVisible(bool);
+    void showDirectoriesToggled(bool);
+    void thumbnailDockVisible(bool);
+    void showThumbnailsToggled(bool);
     void thumbnailListItemDoubleClicked(QListWidgetItem *);
     void treeViewDirectoryCollapsed(QModelIndex index);
     void treeViewDirectoryExpanded(QModelIndex index);

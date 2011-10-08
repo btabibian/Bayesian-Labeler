@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_action_Delete_clicked()));
     connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(on_action_ZoomIn_clicked()));
     connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(on_action_ZoomOut_clicked()));
+    connect(ui->actionShow_Directories, SIGNAL(toggled(bool)), this, SLOT(showDirectoriesToggled(bool)));
+    connect(ui->actionShow_Thumbnails, SIGNAL(toggled(bool)), this, SLOT(showThumbnailsToggled(bool)));
     scene->installEventFilter(this);
     ui->graphicsView->installEventFilter(this);
     set_current_label(0);
@@ -31,11 +33,13 @@ MainWindow::MainWindow(QWidget *parent) :
     wheelDeltaInDegrees=0;
 
     // add the docks to the main window
-    dirDock = new QDockWidget(tr("Directories"));
+    dirDock = new QDockWidget(tr("File Explorer"));
     dirDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    connect(dirDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dirDockVisible(bool)));
     addDockWidget(Qt::LeftDockWidgetArea, dirDock);
     thumbnailDock = new QDockWidget(tr("Thumbnail Viewer"));
     thumbnailDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    connect(thumbnailDock, SIGNAL(visibilityChanged(bool)), this, SLOT(thumbnailDockVisible(bool)));
     splitDockWidget(dirDock, thumbnailDock, Qt::Vertical);
 
     // create the directory model and treeview
@@ -55,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     thumbnailList->setViewMode(QListView::IconMode);
     thumbnailList->setIconSize(QSize(150, 150));
     thumbnailList->setDragEnabled(false);
-    connect(thumbnailList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(thumbnailListItemDoubleClicked(QListWidgetItem *)));
+    connect(thumbnailList, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(thumbnailListItemDoubleClicked(QListWidgetItem *)));
 
     // set the sizes of the docks
     dirDock->setMinimumSize(175, 200);
@@ -65,6 +69,42 @@ MainWindow::MainWindow(QWidget *parent) :
     dirDock->setWidget(treeView);
     thumbnailDock->setWidget(thumbnailList);
 
+}
+
+void MainWindow::dirDockVisible(bool isVisible)
+{
+    if (isVisible) {
+        ui->actionShow_Directories->setChecked(true);
+    } else {
+        ui->actionShow_Directories->setChecked(false);
+    }
+}
+
+void MainWindow::thumbnailDockVisible(bool isVisible)
+{
+    if (isVisible) {
+        ui->actionShow_Thumbnails->setChecked(true);
+    } else {
+        ui->actionShow_Thumbnails->setChecked(false);
+    }
+}
+
+void MainWindow::showDirectoriesToggled(bool checked)
+{
+    if (checked) {
+        dirDock->setVisible(true);
+    } else {
+        dirDock->setVisible(false);
+    }
+}
+
+void MainWindow::showThumbnailsToggled(bool checked)
+{
+    if (checked) {
+        thumbnailDock->setVisible(true);
+    } else {
+        thumbnailDock->setVisible(false);
+    }
 }
 
 void MainWindow::thumbnailListItemDoubleClicked(QListWidgetItem *item)
