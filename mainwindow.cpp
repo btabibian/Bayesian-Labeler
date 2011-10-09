@@ -10,6 +10,8 @@
 #include <QTextEdit>
 #include <QtGui>
 #include <QSettings>
+#include <math.h>
+#include <QtAlgorithms>
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
@@ -21,17 +23,216 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     connect(ui->action_Add_Object,SIGNAL(triggered()),this,SLOT(on_action_Add_Object_clicked()));
     connect(ui->actionDelete,SIGNAL(triggered()),this,SLOT(on_action_Delete_clicked()));
+    connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(on_action_ZoomIn_clicked()));
+    connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(on_action_ZoomOut_clicked()));
+    connect(ui->actionShow_Directories, SIGNAL(toggled(bool)), this, SLOT(showDirectoriesToggled(bool)));
+    connect(ui->actionShow_Thumbnails, SIGNAL(toggled(bool)), this, SLOT(showThumbnailsToggled(bool)));
+    connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(on_action_ZoomReset_Clicked()));
     scene->installEventFilter(this);
     connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     ui->graphicsView->installEventFilter(this);
     set_current_label(0);
     mod=NONE;
+    numberOfZooms=0;
+    wheelDeltaInDegrees=0;
+
+    // add the docks to the main window
+    dirDock = new QDockWidget(tr("File Explorer"));
+    dirDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    connect(dirDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dirDockVisible(bool)));
+    addDockWidget(Qt::LeftDockWidgetArea, dirDock);
+    thumbnailDock = new QDockWidget(tr("Thumbnail Viewer"));
+    thumbnailDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    connect(thumbnailDock, SIGNAL(visibilityChanged(bool)), this, SLOT(thumbnailDockVisible(bool)));
+    splitDockWidget(dirDock, thumbnailDock, Qt::Vertical);
+
+    // create the directory model and treeview
+    dirModel = new QFileSystemModel();
+    dirModel->setRootPath("/");
+    treeView = new QTreeView();
+    treeView->setModel(dirModel);
+    treeView->setColumnHidden(1, true);
+    treeView->setColumnHidden(2, true);
+    treeView->setColumnHidden(3, true);
+    connect(treeView, SIGNAL(activated(QModelIndex)), this, SLOT(treeViewDoubleClicked(QModelIndex)));
+    connect(treeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(treeViewDirectoryCollapsed(QModelIndex)));
+    connect(treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(treeViewDirectoryExpanded(QModelIndex)));
+
+    // create the thumbnail list widget
+    thumbnailList = new QListWidget();
+    thumbnailList->setViewMode(QListView::IconMode);
+    thumbnailList->setIconSize(QSize(150, 150));
+    thumbnailList->setDragEnabled(false);
+    connect(thumbnailList, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(thumbnailListItemDoubleClicked(QListWidgetItem *)));
+
+    // set the sizes of the docks
+    dirDock->setMinimumSize(175, 200);
+    thumbnailDock->setMinimumSize(175, 200);
+
+    // add the widgets to their docks
+    dirDock->setWidget(treeView);
+    thumbnailDock->setWidget(thumbnailList);
 
 }
+
+void MainWindow::dirDockVisible(bool isVisible)
+{
+    if (isVisible) {
+        ui->actionShow_Directories->setChecked(true);
+    } else {
+        ui->actionShow_Directories->setChecked(false);
+    }
+}
+
+void MainWindow::thumbnailDockVisible(bool isVisible)
+{
+    if (isVisible) {
+        ui->actionShow_Thumbnails->setChecked(true);
+    } else {
+        ui->actionShow_Thumbnails->setChecked(false);
+    }
+}
+
+void MainWindow::showDirectoriesToggled(bool checked)
+{
+    if (checked) {
+        dirDock->setVisible(true);
+    } else {
+        dirDock->setVisible(false);
+    }
+}
+
+void MainWindow::showThumbnailsToggled(bool checked)
+{
+    if (checked) {
+        thumbnailDock->setVisible(true);
+    } else {
+        thumbnailDock->setVisible(false);
+    }
+}
+
+void MainWindow::thumbnailListItemDoubleClicked(QListWidgetItem *item)
+{
+    QString fileName(item->text());
+    QString fullPath(directoryPath);
+    fullPath.append(fileName);
+    displayImage(fullPath);
+}
+
+void MainWindow::treeViewDoubleClicked(QModelIndex index)
+{
+    if (!dirModel->isDir(index)) {
+        displayImage(dirModel->filePath(index));
+    }
+}
+
+void MainWindow::treeViewDirectoryCollapsed(QModelIndex index)
+{
+    treeViewDirectoryChanged(dirModel->parent(index));
+}
+
+void MainWindow::treeViewDirectoryExpanded(QModelIndex index)
+{
+    treeViewDirectoryChanged(index);
+}
+
+void MainWindow::treeViewDirectoryChanged(QModelIndex index)
+{
+
+    // clear all the old thumbnails from the previous directory
+    for (int i=0; i<thumbnailList->count(); i++) {
+        delete thumbnailList->item(i);
+    }
+    thumbnailList->clear();
+
+    // get the new directory
+    directoryPath = dirModel->filePath(index);
+    QDir directory(directoryPath);
+
+    // quick fix for formatting issues when in the root directory
+    if (!directoryPath.endsWith("/")) {
+        directoryPath.append("/");
+    }
+
+    // filter for image files only - according to QImageReader::supportedImageFormats
+    QStringList filter;
+    filter << "*.bmp" << "*.gif" << "*.jpg" << "*.jpeg" << "*.mng" << "*.png" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tiff" << "*.tif" << "*.xbm" << "*.xpm" << "*.svg";
+    QStringList files = directory.entryList(filter);
+
+    // increment through the list of image files
+    for (int i=0; i < files.size(); i++) {
+
+        // create a thumbnail and add it to the list
+        QIcon *thumbnail = new QIcon(directoryPath + files.at(i));
+        QListWidgetItem *listItem = new QListWidgetItem(*thumbnail, files.at(i));
+        thumbnailList->addItem(listItem);
+
+    }
+
+}
+
 void MainWindow::updateState()
 {
 
 }
+
+void MainWindow::on_action_ZoomIn_clicked()
+{
+
+    if (numberOfZooms >= MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomIn->setEnabled(false);
+    } else {
+        ui->graphicsView->scale(ZOOM_SCALE, ZOOM_SCALE);
+        numberOfZooms++;
+    }
+
+    if (numberOfZooms > -MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomOut->setEnabled(true);
+    }
+
+    if (numberOfZooms == 0) {
+        updateStatus(tr("Zoom Level: 100%"));
+    } else if (numberOfZooms > 0) {
+        updateStatus(tr("Zoom Level: ")+QString::number(pow(ZOOM_SCALE, (double)numberOfZooms)*100,'f',0)+"%");
+    } else {
+        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(ZOOM_SCALE, (double)-numberOfZooms),'f',0)+"%");
+    }
+
+}
+
+void MainWindow::on_action_ZoomReset_Clicked()
+{
+    ui->actionZoomIn->setEnabled(true);
+    ui->actionZoomOut->setEnabled(true);
+    ui->graphicsView->resetMatrix();
+    updateStatus(tr("Zoom Level: 100%"));
+    numberOfZooms = 0;
+}
+
+void MainWindow::on_action_ZoomOut_clicked()
+{
+
+    if (numberOfZooms <= -MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomOut->setEnabled(false);
+    } else {
+        ui->graphicsView->scale(1/ZOOM_SCALE, 1/ZOOM_SCALE);
+        numberOfZooms--;
+    }
+
+    if (numberOfZooms < MAX_NUMBER_OF_ZOOMS) {
+        ui->actionZoomIn->setEnabled(true);
+    }
+
+    if (numberOfZooms == 0) {
+        updateStatus(tr("Zoom Level: 100%"));
+    } else if (numberOfZooms > 0) {
+        updateStatus(tr("Zoom Level: ")+QString::number(pow(ZOOM_SCALE, (double)numberOfZooms)*100,'f',0)+"%");
+    } else {
+        updateStatus(tr("Zoom Level: ")+QString::number(100/pow(ZOOM_SCALE, (double)-numberOfZooms),'f',0)+"%");
+    }
+
+}
+
 void MainWindow::on_action_Delete_clicked()
 {
 
@@ -46,14 +247,31 @@ void MainWindow::on_action_Delete_clicked()
 
 void MainWindow::on_action_TB_Open_clicked()
 {
-    current_img = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                               "",
-                                               tr("Files (*.*)"));
-    displayImage(current_img);
-    loadImageData(current_img);
+
+    displayImage(QFileDialog::getOpenFileName(this, tr("Open File"),
+                                              "",
+                                              tr("Files (*.*)")));
+
 }
+
+void MainWindow::wheelEvent(QWheelEvent *event)
+{
+
+    wheelDeltaInDegrees += (event->delta() / 8);
+
+    if (wheelDeltaInDegrees >= MOUSE_WHEEL_SENSITIVITY) { // wheel moved forward
+        on_action_ZoomIn_clicked();
+        wheelDeltaInDegrees = 0;
+    } else if (wheelDeltaInDegrees <= -MOUSE_WHEEL_SENSITIVITY) { // wheel moved backward
+        on_action_ZoomOut_clicked();
+        wheelDeltaInDegrees = 0;
+    }
+
+}
+
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
+
     QEvent::Type t=event->type();
     if(t==QEvent::GraphicsSceneMouseRelease)
     {
@@ -90,6 +308,8 @@ void MainWindow::CompleteEdit()
     {
         updateLabel(name);
     }
+    else
+        ui->action_Add_Object->setChecked(true);
 
 }
 void MainWindow::updateLabel(const QString& name)
@@ -100,6 +320,7 @@ void MainWindow::updateLabel(const QString& name)
     else
         return;
     this->get_current_label()->setName(name);
+    ui->action_Add_Object->setChecked(false);
     updateStatus(name+tr(" Added to list of labels"));
 }
 
@@ -121,6 +342,7 @@ void MainWindow::on_action_Add_Object_clicked()
         CompleteEdit();
     else
     {
+
         img_label* lbl=new img_label();
         this->set_current_label(lbl);
         scene->addItem(lbl);
@@ -146,11 +368,18 @@ void MainWindow::set_current_label(img_label* lbl)
 
 void MainWindow::displayImage(QString file_name)
 {
-
+    if(file_name=="")
+        return;
+    current_img=file_name;
+    scene->clear();
+    qDeleteAll(scene->items());
+    labels.clear();
+    on_action_ZoomReset_Clicked();
     pixmap.load(file_name);
     scene->addPixmap(pixmap);
     pixmap.scaled(QSize(100,200));
     ui->graphicsView->show();
+    loadImageData(current_img);
 }
 
 void MainWindow::loadImageData(QString file)
@@ -174,6 +403,11 @@ void MainWindow::on_action_Save_clicked()
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete treeView;
+    delete dirModel;
+    delete dirDock;
+    delete thumbnailList;
+    delete thumbnailDock;
 }
 
 void MainWindow::on_actionE_xit_triggered()
@@ -272,13 +506,13 @@ bool MainWindow::readXmlFile(QString& file)
     {
         return false;
     }
-
+    updateStatus(QString::number(lbl_count)+" labels loaded!");
     return true;
 }
 
 bool MainWindow::writeXmlFile( QString& file )
 {
-    /*! \todo {This way of saving settings does not group labels and their information*/
+
     qDebug()<<file;
     QFile file_handle( file );
     file_handle.open( QIODevice::WriteOnly );

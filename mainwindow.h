@@ -9,8 +9,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#define MAX_NUMBER_OF_ZOOMS 3
+#define MOUSE_WHEEL_SENSITIVITY 1
+#define ZOOM_SCALE 1.3
+
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include <QModelIndex>
+#include <QListWidget>
+#include <QFileSystemModel>
+#include <QDockWidget>
+#include <QTreeView>
 #include "img_label.h"
 #include <QSettings>
 namespace Ui {
@@ -46,15 +55,35 @@ private:
     void loadImageData(QString file);
     bool readXmlFile(QString& file);
     bool writeXmlFile(QString& file);
+    int numberOfZooms;
+    int wheelDeltaInDegrees;
+    QDockWidget *dirDock;
+    QDockWidget *thumbnailDock;
+    QFileSystemModel *dirModel;
+    QTreeView *treeView;
+    QListWidget *thumbnailList;
+    QString directoryPath;
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
     void on_action_Save_clicked();
     void on_action_Delete_clicked();
+    void on_action_ZoomIn_clicked();
+    void on_action_ZoomOut_clicked();
+    void on_action_ZoomReset_Clicked();
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
-
+    void wheelEvent(QWheelEvent *event);
 private slots:
+    void dirDockVisible(bool);
+    void showDirectoriesToggled(bool);
+    void thumbnailDockVisible(bool);
+    void showThumbnailsToggled(bool);
+    void thumbnailListItemDoubleClicked(QListWidgetItem *);
+    void treeViewDirectoryCollapsed(QModelIndex index);
+    void treeViewDirectoryExpanded(QModelIndex index);
+    void treeViewDirectoryChanged(QModelIndex index);
+    void treeViewDoubleClicked(QModelIndex index);
     void on_actionE_xit_triggered();
 };
 
