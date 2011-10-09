@@ -12,6 +12,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include "img_label.h"
+#include <QSettings>
 namespace Ui {
 
     class MainWindow;
@@ -37,10 +38,14 @@ private:
     void displayImage(QString file);
     void set_current_label(img_label* lbl);
     img_label* get_current_label();
-    void drawVertex(QPoint point);
+    void drawVertex(QPoint point,bool mapped=false);
     void CompleteEdit();
     void updateState();
     void updateStatus(QString msg);
+    void updateLabel(const QString& name);
+    void loadImageData(QString file);
+    bool readXmlFile(QString& file);
+    bool writeXmlFile(QString& file);
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();

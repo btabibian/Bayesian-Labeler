@@ -23,6 +23,7 @@ class img_label: public QObject, public QGraphicsPolygonItem
 public:
             explicit img_label(QGraphicsItem *parent=0);
     void addVertex(QPointF point);
+    QVector<QPointF> getVertecies();
     void setName(QString name);
     QString getName();
     void startEdit();

@@ -58,6 +58,11 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
 
 
 }
+QVector<QPointF> img_label::getVertecies()
+{
+    return points;
+}
+
 void img_label::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mousePressEvent(event);
