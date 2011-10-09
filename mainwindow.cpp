@@ -51,6 +51,7 @@ void MainWindow::on_action_TB_Open_clicked()
                                                tr("Files (*.*)"));
     displayImage(current_img);
     loadImageData(current_img);
+}
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     QEvent::Type t=event->type();
@@ -252,10 +253,12 @@ bool MainWindow::readXmlFile(QString& file)
         }
         if( xmlReader.isEndElement() )
         {
-
-            updateLabel("None");
+            if(mod==ADD_LABEL)
+            {
+            updateLabel(name);
             current_lbl->setPos(x_pos,y_pos);
             current_lbl->setName(name);
+            }
             continue;
         }
     }
