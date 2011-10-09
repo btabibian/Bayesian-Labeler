@@ -36,9 +36,6 @@
     <addaction name="action_TB_Open"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
-    <addaction name="action_Add_Object"/>
-    <addaction name="actionDelete"/>
-    <addaction name="separator"/>
     <addaction name="actionE_xit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -53,7 +50,15 @@
     <addaction name="separator"/>
     <addaction name="actionZoomReset"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="action_Add_Object"/>
+    <addaction name="actionDelete"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuView"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -110,7 +115,7 @@
      <normaloff>:/add.png</normaloff>:/add.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Add Object</string>
+    <string>&amp;Add Annotation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -134,16 +139,20 @@
      <normaloff>:/delete</normaloff>:/delete</iconset>
    </property>
    <property name="text">
-    <string>&amp;Delete</string>
+    <string>&amp;Delete Annotation</string>
    </property>
    <property name="toolTip">
-    <string>Delete an Object</string>
+    <string>Delete Annotation</string>
    </property>
    <property name="shortcut">
     <string>Del</string>
    </property>
   </action>
   <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/images/zoomin.png</normaloff>:/images/zoomin.png</iconset>
+   </property>
    <property name="text">
     <string>Zoom In</string>
    </property>
@@ -155,6 +164,10 @@
    </property>
   </action>
   <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/images/zoomout.png</normaloff>:/images/zoomout.png</iconset>
+   </property>
    <property name="text">
     <string>Zoom Out</string>
    </property>
@@ -188,6 +201,10 @@
    </property>
   </action>
   <action name="actionZoomReset">
+   <property name="icon">
+    <iconset resource="rsc.qrc">
+     <normaloff>:/images/zoomreset.png</normaloff>:/images/zoomreset.png</iconset>
+   </property>
    <property name="text">
     <string>Reset Zoom</string>
    </property>
