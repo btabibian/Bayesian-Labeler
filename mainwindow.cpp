@@ -494,9 +494,9 @@ bool MainWindow::readXmlFile(QString& file)
         {
             if(mod==ADD_LABEL)
             {
-            updateLabel(name);
-            current_lbl->setPos(x_pos,y_pos);
-            current_lbl->setName(name);
+                updateLabel(name);
+                current_lbl->setPos(x_pos,y_pos);
+                current_lbl->setName(name);
             }
             continue;
         }
