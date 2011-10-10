@@ -29,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionShow_Thumbnails, SIGNAL(toggled(bool)), this, SLOT(showThumbnailsToggled(bool)));
     connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(on_action_ZoomReset_Clicked()));
     scene->installEventFilter(this);
-    connect(ui->action_Save,SIGNAL(triggered()),this,SLOT(on_action_Save_clicked()));
     ui->graphicsView->installEventFilter(this);
     set_current_label(0);
     mod=NONE;
@@ -72,6 +71,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // add the widgets to their docks
     dirDock->setWidget(treeView);
     thumbnailDock->setWidget(thumbnailList);
+
+    current_action=START;
+
 
 }
 
@@ -242,11 +244,14 @@ void MainWindow::on_action_Delete_clicked()
         scene->removeItem(curr);
         labels.remove(labels.indexOf(curr));
         set_current_label(0);
+        changeState(EDIT);
     }
+
 }
 
 void MainWindow::on_action_TB_Open_clicked()
 {
+
 
     displayImage(QFileDialog::getOpenFileName(this, tr("Open File"),
                                               "",
@@ -334,6 +339,14 @@ void MainWindow::drawVertex(QPoint point,bool mapped)
     scene->update();
 
 }
+void MainWindow::changeState(ACTIONS new_state)
+{
+
+    predictor.updateVariable(current_action,new_state);
+    current_action=new_state;
+    ACTIONS next_prob=predictor.inferNextAction(current_action);
+    qDebug()<<"Might like to try"+predictor.actionName(next_prob);
+}
 
 void MainWindow::on_action_Add_Object_clicked()
 {
@@ -350,6 +363,7 @@ void MainWindow::on_action_Add_Object_clicked()
         mod= ADD_LABEL;
         lbl->startEdit();
         updateStatus(tr("Click on screen to add vertex for a new object, Right Click to finish"));
+        changeState(ADD);
     }
 }
 void MainWindow::updateStatus(QString msg)
@@ -380,6 +394,7 @@ void MainWindow::displayImage(QString file_name)
     pixmap.scaled(QSize(100,200));
     ui->graphicsView->show();
     loadImageData(current_img);
+    changeState(OPEN);
 }
 
 void MainWindow::loadImageData(QString file)
@@ -396,7 +411,7 @@ void MainWindow::on_action_Save_clicked()
     QString name=current_img;
     name+=".lbls.xml";
     writeXmlFile(name);
-
+    changeState(SAVE);
 
 
 }
@@ -417,15 +432,19 @@ void MainWindow::on_actionE_xit_triggered()
 
 bool MainWindow::readXmlFile(QString& file)
 {
+    predictor.disable();
     int lbl_count=0;
     int x_pos=0;
     int y_pos=0;
     int pnt =0;
     QString name;
     QFile file_handle( file );
+    ACTIONS pre=current_action;
     if(!file_handle.open( QIODevice::ReadOnly ))
     {
         qDebug()<<"File Not Found!";
+        changeState(pre);
+        predictor.enable();
         return false;
     }
     QXmlStreamReader xmlReader( &file_handle );
@@ -507,6 +526,9 @@ bool MainWindow::readXmlFile(QString& file)
         return false;
     }
     updateStatus(QString::number(lbl_count)+" labels loaded!");
+    changeState(pre);
+    predictor.enable();
+
     return true;
 }
 
@@ -561,6 +583,7 @@ bool MainWindow::writeXmlFile( QString& file )
     xmlWriter.writeEndElement();
     xmlWriter.writeEndDocument();
     file_handle.close();
+
     return true;
 }
 

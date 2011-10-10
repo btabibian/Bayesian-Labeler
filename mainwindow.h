@@ -22,6 +22,7 @@
 #include <QTreeView>
 #include "img_label.h"
 #include <QSettings>
+#include <act_predict.h>
 namespace Ui {
 
     class MainWindow;
@@ -63,6 +64,10 @@ private:
     QTreeView *treeView;
     QListWidget *thumbnailList;
     QString directoryPath;
+    //inference engine
+    act_predict predictor;
+    ACTIONS current_action;
+    void changeState(ACTIONS new_state);
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
