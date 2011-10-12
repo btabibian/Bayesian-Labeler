@@ -37,7 +37,7 @@ void act_predict::constructActions()
     eng.AddVariable("OPEN",4,&open);
     eng.AddVariable("SAVE",4,&save);
     eng.AddVariable("EDIT",4,&edit);
-    eng.AddVariable("ADD",4,&edit);
+    eng.AddVariable("ADD",4,&add);
 #else
     eng.AddVariable("OPEN",4);
     eng.AddVariable("SAVE",4);
