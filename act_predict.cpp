@@ -9,12 +9,45 @@ act_predict::act_predict(QObject *parent) :
 }
 void act_predict::constructActions()
 {
+	//Basic intution about the priors for each action.
+#ifdef PRIORS_ENABLED
+    QVector<int> open=QVector<int>(4);
+    open[0]=1;
+    open[1]=1;
+    open[2]=3;
+    open[3]=5;
+
+    QVector<int> save=QVector<int>(4);
+    save[0]=4;
+    save[1]=1;
+    save[2]=2;
+    save[3]=3;
+
+    QVector<int> edit=QVector<int>(4);
+    edit[0]=0;
+    edit[1]=3;
+    edit[2]=4;
+    edit[3]=3;
+
+    QVector<int> add=QVector<int>(4);
+    add[0]=1;
+    add[1]=3;
+    add[2]=3;
+    add[3]=3;
+    eng.AddVariable("OPEN",4,&open);
+    eng.AddVariable("SAVE",4,&save);
+    eng.AddVariable("EDIT",4,&edit);
+    eng.AddVariable("ADD",4,&edit);
+#else
     eng.AddVariable("OPEN",4);
     eng.AddVariable("SAVE",4);
     eng.AddVariable("EDIT",4);
     eng.AddVariable("ADD",4);
+#endif
 
 }
+
+
 void act_predict::enable()
 {
     active=true;
@@ -69,7 +102,7 @@ QString act_predict::actionName(ACTIONS act)
         return "ADD";
         break;
     default:
-        return "NULL";
+        return "";
     }
 }
 
@@ -104,5 +137,8 @@ ACTIONS act_predict::inferNextAction(ACTIONS criteria)
         }
     }
     qDebug()<<"Highest prob for action "<<actionName(criteria)<<" is "<<actionName(ACTIONS(index))<<"With Probab."<<highest;
+    if(highest<MINIMUM_PROB)
+        return START;
+
     return ACTIONS(index);
 }

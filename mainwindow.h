@@ -20,6 +20,7 @@
 #include <QFileSystemModel>
 #include <QDockWidget>
 #include <QTreeView>
+#include <QPushButton>
 #include "img_label.h"
 #include <QSettings>
 #include <act_predict.h>
@@ -65,9 +66,17 @@ private:
     QListWidget *thumbnailList;
     QString directoryPath;
     //inference engine
+    QIcon img_add;
+    QIcon img_edit;
+    QIcon img_save;
+    QIcon img_open;
     act_predict predictor;
     ACTIONS current_action;
+    ACTIONS predicted_action;
+    QDockWidget *nextOptDock;
+    QPushButton *nextOptWidget;
     void changeState(ACTIONS new_state);
+    void selectAction(ACTIONS action);
 public slots:
     void on_action_TB_Open_clicked();
     void on_action_Add_Object_clicked();
@@ -80,6 +89,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 private slots:
+    void on_actionShow_Suggestions_toggled(bool );
     void dirDockVisible(bool);
     void showDirectoriesToggled(bool);
     void thumbnailDockVisible(bool);
@@ -90,6 +100,9 @@ private slots:
     void treeViewDirectoryChanged(QModelIndex index);
     void treeViewDoubleClicked(QModelIndex index);
     void on_actionE_xit_triggered();
+    //inference engine slots
+    void nextOptDockVisible(bool);
+    void nextOptWidgetPushed();
 };
 
 #endif // MAINWINDOW_H

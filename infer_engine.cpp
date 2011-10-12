@@ -7,10 +7,18 @@ infer_engine::infer_engine(QObject *parent) :
 
 }
 
-void infer_engine::AddVariable(QString name,int events)
+void infer_engine::AddVariable(QString name,int events,const QVector<int>* priors)
 {
-    state_variable* var=new state_variable(events,name,this);
-    vars.insert(name,var);
+    if(priors==0)
+    {
+        state_variable* var=new state_variable(events,name,this);
+        vars.insert(name,var);
+    }
+    else
+    {
+        state_variable* var=new state_variable(*priors,events,name,this);
+        vars.insert(name,var);
+    }
 }
 
 void infer_engine::updateVariable(QString name,const QVector<int>& updateVector)

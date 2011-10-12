@@ -44,6 +44,7 @@
     </property>
     <addaction name="actionShow_Directories"/>
     <addaction name="actionShow_Thumbnails"/>
+    <addaction name="actionShow_Suggestions"/>
     <addaction name="separator"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
@@ -213,6 +214,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionShow_Suggestions">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Suggestions</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Suggestions</string>
    </property>
   </action>
  </widget>

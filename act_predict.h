@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <infer_engine.h>
+#define MINIMUM_PROB 0.3
+#define PRIORS_ENABLED
 enum ACTIONS { OPEN=0, SAVE=1, EDIT=2,ADD=3,START=-1};
 class act_predict : public QObject
 {

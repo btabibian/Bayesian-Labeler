@@ -71,10 +71,34 @@ MainWindow::MainWindow(QWidget *parent) :
     // add the widgets to their docks
     dirDock->setWidget(treeView);
     thumbnailDock->setWidget(thumbnailList);
-
+    // initializing inference system.
+    img_add=QPixmap(":/add.png");
+    img_edit=QPixmap(":/delete");
+    img_open=QPixmap(":/open.png");
+    img_save=QPixmap(":/save");
     current_action=START;
+    nextOptDock = new QDockWidget(tr("Suggested Action"),this);
+    nextOptDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    connect(nextOptDock, SIGNAL(visibilityChanged(bool)), this, SLOT(nextOptDockVisible(bool)));
+    splitDockWidget(thumbnailDock, nextOptDock, Qt::Vertical);
+    nextOptWidget=new QPushButton(this);
+    nextOptWidget->setText("");
+    nextOptDock->setWidget(nextOptWidget);
+    nextOptDock->setMinimumSize(175, 70);
+    nextOptDock->setMaximumSize(175, 90);
+    nextOptWidget->setFlat(true);
+    nextOptWidget->setIconSize(QSize(50,50));
+    connect(nextOptWidget, SIGNAL(clicked()), this, SLOT(nextOptWidgetPushed()));
 
 
+}
+void MainWindow::nextOptDockVisible(bool isVisible)
+{
+    if (isVisible) {
+        ui->actionShow_Suggestions->setChecked(true);
+    } else {
+        ui->actionShow_Suggestions->setChecked(false);
+    }
 }
 
 void MainWindow::dirDockVisible(bool isVisible)
@@ -345,7 +369,34 @@ void MainWindow::changeState(ACTIONS new_state)
     predictor.updateVariable(current_action,new_state);
     current_action=new_state;
     ACTIONS next_prob=predictor.inferNextAction(current_action);
-    qDebug()<<"Might like to try"+predictor.actionName(next_prob);
+
+    //nextOptWidget->setText(predictor.actionName(next_prob));
+    switch(next_prob)
+    {
+    case ADD:
+        predicted_action=next_prob;
+        nextOptWidget->setIcon(img_add);
+        nextOptWidget->setText(tr("Add"));
+        break;
+    case EDIT:
+        predicted_action=next_prob;
+        nextOptWidget->setIcon(img_edit);
+        nextOptWidget->setText(tr("Edit"));
+        break;
+    case OPEN:
+        predicted_action=next_prob;
+        nextOptWidget->setIcon(img_open);
+        nextOptWidget->setText(tr("Open"));
+        break;
+    case SAVE:
+        predicted_action=next_prob;
+        nextOptWidget->setIcon(img_save);
+        nextOptWidget->setText(tr("Save"));
+        break;
+    default:
+        return;
+
+    }
 }
 
 void MainWindow::on_action_Add_Object_clicked()
@@ -587,3 +638,39 @@ bool MainWindow::writeXmlFile( QString& file )
     return true;
 }
 
+
+void MainWindow::on_actionShow_Suggestions_toggled(bool checked )
+{
+    if (checked) {
+        nextOptDock->setVisible(true);
+    } else {
+        nextOptDock->setVisible(false);
+    }
+}
+void MainWindow::nextOptWidgetPushed()
+{
+    selectAction(predicted_action);
+}
+
+void MainWindow::selectAction(ACTIONS action)
+{
+
+    switch(action)
+    {
+    case ADD:
+        ui->action_Add_Object->trigger();
+        break;
+    case EDIT:
+        ui->actionDelete->trigger();
+        break;
+    case OPEN:
+        ui->action_TB_Open->trigger();
+        break;
+    case SAVE:
+        ui->action_Save->trigger();
+        break;
+    default:
+        return;
+
+    }
+}

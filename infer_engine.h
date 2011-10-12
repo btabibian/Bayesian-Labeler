@@ -11,7 +11,7 @@ private:
     QMap<QString,state_variable*> vars;
 public:
     explicit infer_engine(QObject *parent = 0);
-    void AddVariable(QString name,int events);
+    void AddVariable(QString name ,int events,const QVector<int>* priors=0);
     void updateVariable(QString name,const QVector<int>& updateVector);
     void getProbabilities(QString name,QVector<float>& probVector);
     void clean();
