@@ -13,6 +13,8 @@ class act_predict : public QObject
 private:
     infer_engine eng;
     void constructActions();
+    ACTIONS produce_action_ranked(const QVector<float>&);
+    ACTIONS produce_action_rng(const QVector<float>&);
     bool active;
 public:
 

@@ -1,9 +1,12 @@
 #include "act_predict.h"
 #include <QVector>
 #include <QDebug>
+#include <QTime>
 act_predict::act_predict(QObject *parent) :
     QObject(parent)
 {
+    QTime time = QTime::currentTime();
+    qsrand((uint)time.msec());
     constructActions();
     active=true;
 }
@@ -82,8 +85,6 @@ void act_predict::updateVariable(ACTIONS init,ACTIONS dest)
         eng.updateVariable("ADD",update);
         break;
     }
-    //Debugging
-    qDebug()<<inferNextAction(dest);
 }
 QString act_predict::actionName(ACTIONS act)
 {
@@ -126,6 +127,12 @@ ACTIONS act_predict::inferNextAction(ACTIONS criteria)
     default:
         return START;
     }
+
+
+    return produce_action_rng(update);
+}
+ACTIONS act_predict::produce_action_ranked(const QVector<float>& update)
+{
     float highest=0;
     int index=0;
     for(int i=0;i<update.count();i++)
@@ -136,9 +143,31 @@ ACTIONS act_predict::inferNextAction(ACTIONS criteria)
             index=i;
         }
     }
-    qDebug()<<"Highest prob for action "<<actionName(criteria)<<" is "<<actionName(ACTIONS(index))<<"With Probab."<<highest;
+
     if(highest<MINIMUM_PROB)
         return START;
 
+    qDebug() <<"ranked_selected action "<<actionName(ACTIONS(index))<<"with probability"<<update[index];
+    return ACTIONS(index);
+}
+
+ACTIONS act_predict::produce_action_rng(const QVector<float>& update)
+{
+
+    int val=qrand()*(100.0/RAND_MAX);
+    qDebug()<<"Random variable "<<val;
+    int current=0;
+    int index=0;
+    for(int i=0;i<update.count();i++)
+    {
+       current+=update[i]*100;
+       if(current>=val)
+       {
+           index=i;
+           break;
+       }
+    }
+    //produce_action_ranked(update);
+    qDebug() <<"rng_selected action "<<actionName(ACTIONS(index))<<"with probability"<<update[index];
     return ACTIONS(index);
 }
