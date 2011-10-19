@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui(new Ui::MainWindow)
 {
     current_img="";
+    init=true;
     ui->setupUi(this);
     scene =new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
@@ -290,20 +291,28 @@ void MainWindow::on_action_ZoomOut_clicked()
 
 void MainWindow::on_action_Delete_clicked()
 {
-
+    QString name;
     if(get_current_label())
     {
         img_label* curr=get_current_label();
+        name=curr->getName();
         scene->removeItem(curr);
         labels.remove(labels.indexOf(curr));
         set_current_label(0);
         changeState(EDIT);
+        init=false;
     }
+    updateStatus(name+tr(" removed from labels"));
 
 }
 bool MainWindow::checkSave()
 {
+    if(init)
+    {
+        return true;
+    }
     QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Image Annotator"));
     msgBox.setText("The image has been modified.");
     msgBox.setInformativeText("Do you want to save your changes?");
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -321,9 +330,10 @@ bool MainWindow::checkSave()
         return false;
         break;
     default:
-        // should never be reached
+        return false;
         break;
     }
+    return false;
 
 
 }
@@ -335,7 +345,10 @@ void MainWindow::on_action_TB_Open_clicked()
         displayImage(QFileDialog::getOpenFileName(this, tr("Open File"),
                                                   "",
                                                   tr("Files (*.*)")));
+        updateStatus(current_img+tr(" Loaded!"));
+        init=true;
     }
+
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event)
@@ -380,7 +393,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
     } else {
 
-        // standard event processing
+        if (t == QEvent::GraphicsSceneMouseMove )
+            init=false;
     }
     return QObject::eventFilter(obj, event);
 }
@@ -391,6 +405,7 @@ void MainWindow::CompleteEdit()
     if(ok)
     {
         updateLabel(name);
+        init=false;
     }
     else
         ui->action_Add_Object->setChecked(true);
@@ -519,6 +534,7 @@ void MainWindow::on_action_Save_clicked()
     name+=".lbls.xml";
     writeXmlFile(name);
     changeState(SAVE);
+    init=true;
 
 
 }
@@ -661,7 +677,7 @@ bool MainWindow::writeXmlFile( QString& file )
 
     QVector<img_label*>::const_iterator mi=labels.begin();
     int i=0;
-    for( mi; mi != labels.end(); ++mi )
+    for( ; mi != labels.end(); ++mi )
     {
         img_label* lbl=*mi;
         xmlWriter.writeStartElement( "lbl"+QString::number(i) );

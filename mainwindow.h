@@ -72,6 +72,7 @@ private:
     void storeWindowLayout();
     void restoreWindowLayout();
     QByteArray windowLayout;
+    bool init;
     //inference engine
     QIcon img_add;
     QIcon img_edit;
