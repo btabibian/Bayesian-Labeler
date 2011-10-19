@@ -4,6 +4,9 @@
 #include "img_label.h"
 #include <QPainter>
 #include <iostream>
+
+#include <limits.h>
+
 img_label::img_label(QGraphicsItem *parent) :
         QGraphicsPolygonItem(parent)
 {

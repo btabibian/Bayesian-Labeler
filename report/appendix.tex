@@ -11,8 +11,8 @@ where $\mu=(\mu_1,\mu_2,...,\mu_K)^T$. Finding the maximum likelihood solution f
 \mu_k^{ML}={m_k \over N} 
 \]
 
-We use this result to approximate the best probability for next action. It is natural to think about this result as averaging over the observations.
-To take one step further and introduce priors to the distribution we use \textit{Dirichlet distribution} which is conjugate prior of Multinomial distribution.
+We use this result to approximate the best probability for the next action. It is natural to think about this result as averaging over the observations.
+To take one step further and introduce priors to the distribution we use \textit{Dirichlet distribution} which is the conjugate prior of the multinomial distribution.
 \[
 Dir(\mu|\alpha)={\Gamma(\alpha_0) \over \Gamma(\alpha_1)...\Gamma(\alpha_K)}\prod_{k=1}^K \mu_{k}^{\alpha_k -1}
 \]
@@ -33,10 +33,10 @@ The value of the last line is equal to
 
 \[\mathbb{E}[\mu|D]={m_k+\alpha_k \over {N+\alpha_0}} \]
 
-The result just like earlier can be interpreted as considering priors as imaginary observations.
+The result, just like earlier, can be interpreted as considering priors as imaginary observations.
 
-After calculating the $\mu$ of every action, suggestion is produced by using Inverse Transform method and a uniform distribution.
+After calculating the $\mu$ of every action the suggestion is produced by using the Inverse Transform method and a uniform distribution.
 
-In conclusion the resulting model even though simple but is tractable and produces expected results which is fairly robust. 
+In conclusion, the resulting model even though simple is tractable and produces expected results which are fairly robust.
 
-For further information reader is referred to \cite{Bishop2007}. 
+For further information the reader is referred to \cite{Bishop2007}. 
