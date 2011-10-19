@@ -1,0 +1,27 @@
+\section{Action Suggestion}
+Action suggestion is a special feature of this software package. The goal is to demonstrate how probabilistic Machine Learning can be used in User Interface stack of variety of applications. To demonstrate this, we modelled user actions with elements of probability distributions to infer next possible action of the user and update the model according to past experiences that is observed. Suggested action is shown in a separate dock widget on the left side of the screen and as discussed earlier user can move them to another position in the screen.
+Mathematical derivation of the model is not described here and can be found in Appendix \ref{InferEngine}. 
+
+To build this model we made some assumptions about user actions:
+\begin{itemize}
+\item Next action of the user only depends on its previous action.
+\item Number of possible actions are limited and discrete.
+\end{itemize}
+The assumptions are made to make the model simpler and possible to implement and test within the limits. We assume user has four actions, {\textit{Add}, \textit{Delete}, \textit{Open}, \textit{Save}}. Also program is preloaded with some prior information about users behaviour after each action. Prior information can be found in table \ref{tab:priors}. This table can be interpreted as the number of times users have chosen an specific action after the action specified in the first column is observed.
+\begin{table}[t]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline \rule[-1ex]{0pt}{3.5ex}  & OPEN & SAVE & EDIT & ADD \\ 
+\hline \rule[-1ex]{0pt}{3.5ex} OPEN & 1 & 1 & 3 & 5 \\ 
+\hline \rule[-1ex]{0pt}{3.5ex} SAVE & 4 & 1 & 2 & 3 \\ 
+\hline \rule[-1ex]{0pt}{3.5ex} EDIT & 0 & 3 & 4 & 3 \\ 
+\hline \rule[-1ex]{0pt}{3.5ex} ADD & 1 & 3 & 3 & 3 \\ 
+\hline 
+\end{tabular}
+\caption{priors used for each action}
+\label{tab:priors}
+\end{table}
+Once program is loaded and user starts loading images and annotate them his actions will be learnt and used for next suggestions. For example if user opens an image after a new annotation, probability of suggesting that action is increased in later suggestions.
+
+Even though no empirical experiment was conducted, but certain patterns can be observed from users behaviours which this model can capture. An example of such patterns can be seen when user saves a file and then opens an image, Or when a new image is loaded users usually start adding labels to the loaded image. Both of these patterns are produced by the implemented inference system and suggestions are made according to action of the user.
+This feature, however, cannot capture all possible patterns, for example it may not be able to suggest reasonable actions after user has added a new label. This pattern may be modelled if number of consecutive additions are taken into account. This and many other examples require more sophisticated mathematical models which is not present in this project.
