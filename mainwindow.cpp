@@ -109,7 +109,7 @@ void MainWindow::hideEvent(QHideEvent *evt)
 {
     if(evt->spontaneous())
     {
-    storeWindowLayout();
+        storeWindowLayout();
 
     }
 }
@@ -117,8 +117,6 @@ void MainWindow::showEvent(QShowEvent *evt)
 {
 
     restoreWindowLayout();
-
-
 }
 
 void MainWindow::nextOptDockVisible(bool isVisible)
