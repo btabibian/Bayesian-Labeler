@@ -168,6 +168,7 @@ ACTIONS act_predict::produce_action_rng(const QVector<float>& update)
        }
     }
     //produce_action_ranked(update);
+    //This way of drawing and instance is not correct, needs to be fixed!!
     qDebug() <<"rng_selected action "<<actionName(ACTIONS(index))<<"with probability"<<update[index];
     return ACTIONS(index);
 }
