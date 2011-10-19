@@ -52,6 +52,7 @@ private:
     void drawVertex(QPoint point,bool mapped=false);
     void CompleteEdit();
     void updateState();
+    void removeImage();
     void updateStatus(QString msg);
     void updateLabel(const QString& name);
     void loadImageData(QString file);
@@ -65,6 +66,9 @@ private:
     QTreeView *treeView;
     QListWidget *thumbnailList;
     QString directoryPath;
+    bool changed;
+    void closeEvent(QCloseEvent *event);
+    bool checkSave();
     //inference engine
     QIcon img_add;
     QIcon img_edit;

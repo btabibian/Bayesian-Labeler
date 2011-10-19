@@ -40,8 +40,7 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
 
         i++;
     }
-    if(!editMode)
-    {
+
     if(!isSelected())
     {
     painter->setBrush(QBrush(QColor(UNSELECTED_COLOR)));
@@ -54,7 +53,6 @@ void img_label::paint(QPainter* painter,const QStyleOptionGraphicsItem* options,
     }
     setPolygon(n_points);
     painter->drawConvexPolygon(QPolygonF(n_points));
-    }
 
 
 }

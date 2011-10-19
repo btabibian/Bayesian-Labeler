@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
 {
+    current_img="";
     ui->setupUi(this);
     scene =new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
@@ -272,15 +273,41 @@ void MainWindow::on_action_Delete_clicked()
     }
 
 }
+bool MainWindow::checkSave()
+{
+    QMessageBox msgBox;
+    msgBox.setText("The image has been modified.");
+    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    int ret = msgBox.exec();
+    switch (ret) {
+    case QMessageBox::Save:
+        ui->action_Save->trigger();
+        return true;
+        break;
+    case QMessageBox::Discard:
+        return true;
+        break;
+    case QMessageBox::Cancel:
+        return false;
+        break;
+    default:
+        // should never be reached
+        break;
+    }
+
+
+}
 
 void MainWindow::on_action_TB_Open_clicked()
 {
-
-
-    displayImage(QFileDialog::getOpenFileName(this, tr("Open File"),
-                                              "",
-                                              tr("Files (*.*)")));
-
+    if(current_img==""||checkSave())
+    {
+        displayImage(QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                  "",
+                                                  tr("Files (*.*)")));
+    }
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event)
@@ -440,6 +467,7 @@ void MainWindow::displayImage(QString file_name)
     qDeleteAll(scene->items());
     labels.clear();
     on_action_ZoomReset_Clicked();
+    pixmap.fill();
     pixmap.load(file_name);
     scene->addPixmap(pixmap);
     pixmap.scaled(QSize(100,200));
@@ -479,6 +507,13 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionE_xit_triggered()
 {
     this->close();
+}
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    predictor.disable();
+    if(current_img!=""&&!checkSave())
+        event->ignore();
+    predictor.enable();
 }
 
 bool MainWindow::readXmlFile(QString& file)
