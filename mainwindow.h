@@ -69,6 +69,9 @@ private:
     bool changed;
     void closeEvent(QCloseEvent *event);
     bool checkSave();
+    void storeWindowLayout();
+    void restoreWindowLayout();
+    QByteArray windowLayout;
     //inference engine
     QIcon img_add;
     QIcon img_edit;
@@ -92,6 +95,8 @@ public slots:
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
+    void hideEvent(QHideEvent *);
+    void showEvent(QShowEvent *);
 private slots:
     void on_actionShow_Suggestions_toggled(bool );
     void dirDockVisible(bool);

@@ -38,10 +38,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // add the docks to the main window
     dirDock = new QDockWidget(tr("File Explorer"));
+    dirDock->setObjectName("FExplore");
     dirDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     connect(dirDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dirDockVisible(bool)));
     addDockWidget(Qt::LeftDockWidgetArea, dirDock);
     thumbnailDock = new QDockWidget(tr("Thumbnail Viewer"));
+    thumbnailDock->setObjectName("ThumbnailViewer");
     thumbnailDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     connect(thumbnailDock, SIGNAL(visibilityChanged(bool)), this, SLOT(thumbnailDockVisible(bool)));
     splitDockWidget(dirDock, thumbnailDock, Qt::Vertical);
@@ -79,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     img_save=QPixmap(":/save");
     current_action=START;
     nextOptDock = new QDockWidget(tr("Suggested Action"),this);
+    nextOptDock->setObjectName("SuggestedAct");
     nextOptDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     connect(nextOptDock, SIGNAL(visibilityChanged(bool)), this, SLOT(nextOptDockVisible(bool)));
     splitDockWidget(thumbnailDock, nextOptDock, Qt::Vertical);
@@ -93,13 +96,40 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 }
+void MainWindow::storeWindowLayout()
+{
+    windowLayout=this->saveState();
+}
+void MainWindow::restoreWindowLayout()
+{
+    this->restoreState(windowLayout);
+}
+
+void MainWindow::hideEvent(QHideEvent *evt)
+{
+    if(evt->spontaneous())
+    {
+    storeWindowLayout();
+
+    }
+}
+void MainWindow::showEvent(QShowEvent *evt)
+{
+
+    restoreWindowLayout();
+
+
+}
+
 void MainWindow::nextOptDockVisible(bool isVisible)
 {
     if (isVisible) {
         ui->actionShow_Suggestions->setChecked(true);
     } else {
         ui->actionShow_Suggestions->setChecked(false);
+
     }
+
 }
 
 void MainWindow::dirDockVisible(bool isVisible)
