@@ -3,12 +3,11 @@ The image annotation feature of this program uses a set of vertices to form a po
 
 There are several remarks that can be made about this feature. One problem that we had to deal with when we were implementing it was that a user may not necessarily select the vertices of the polygon in order. This situation is not supported by the underlying framework and produces undefined shapes. Our solution to this problem was to colour the surface of the polygon as the user adds the vertices. This results in a shape that is more intuitive for the user to visualise as they are drawing, and in this way guides them through the polygon creation and hence helps prevent erroneous shapes.
 
-
 \begin{figure}[h!]
 \centering
 \includegraphics[width=6cm]{example.png}
+\caption{Main Window of the application with an example of an annotated object}
 \label{fig:fullView}
-\caption{Main Window}
 \end{figure}
 
-Another design decision we made when implementing the drawing feature was to remove the ability of the user to edit the position of each vertex of the polygon once it had been created. This means that after the user names the polygon it can no longer change shape - it must be deleted and redrawn. This decision was primarily based on time constraints since we had other features that we felt were a greater priority.  However, in defense of our decision annotations are usually small and therefore a user prefer to redraw the polygon rather than changing and/or adding extra vertices as this may take longer to accomplish.
+Another design decision we made when implementing the drawing feature was to not include the ability for the user to edit the position of each vertex of the polygon once it had been created. This means that after the user names the polygon it can no longer change shape - it must be deleted and redrawn. This decision was primarily based on time constraints since we had other features that we felt were a greater priority.  However, in defense of our decision annotations are usually small and therefore a user may prefer to redraw the polygon anyway, rather than changing and/or adding extra vertices as this may take longer to accomplish.
