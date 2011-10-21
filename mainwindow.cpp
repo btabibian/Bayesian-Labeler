@@ -317,6 +317,7 @@ bool MainWindow::checkSave()
     msgBox.setInformativeText("Do you want to save your changes?");
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);
+    msgBox.setIcon(QMessageBox::Warning);
     int ret = msgBox.exec();
     switch (ret) {
     case QMessageBox::Save:
