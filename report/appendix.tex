@@ -1,5 +1,5 @@
 \section{ Derivation of Bayesian Inference Engine}
-Every possible action of the user can be shown as a vector: $X_{act}=(open, save, edit, add)^T$ in which  $act \in {open, save, edit, add}$. Every action can be modelled as a \textit{Multinomial Distribution}:
+Every possible action of the user can be shown as a vector: $X_{act}=(open, save, edit, add)^T$ in which  $act \in {open, save, edit, add}$. Every possible action can be modelled as a \textit{Multinomial Distribution}:
 
 \[
 Mult(m_1,m_2,...,m_K|\mu,N)={N \choose m_1 m_2 ... m_K}\prod_{k=1}^K \mu_{k}^{x_k}
@@ -11,7 +11,7 @@ where $\mu=(\mu_1,\mu_2,...,\mu_K)^T$. Finding the maximum likelihood solution f
 \mu_k^{ML}={m_k \over N} 
 \]
 
-We use this result to approximate the best probability for the next action. It is natural to think about this result as averaging over the observations.
+We use this result to approximate probability for the next action to be chosen. It is natural to think about this result as averaging over the observations.
 To take one step further and introduce priors to the distribution we use \textit{Dirichlet distribution} which is the conjugate prior of the multinomial distribution.
 \[
 Dir(\mu|\alpha)={\Gamma(\alpha_0) \over \Gamma(\alpha_1)...\Gamma(\alpha_K)}\prod_{k=1}^K \mu_{k}^{\alpha_k -1}
@@ -29,14 +29,14 @@ Marginalizing over $\mu$ we get
 \[p(x=add|D)=\int_0^1 p(x=add|\mu)p(\mu|D) \mathrm{d}\mu\]
 \[p(x=add|D)=\int_0^1 \mu p(\mu|D)\mathrm{d}\mu = \mathbb{E}[\mu|D]\]
 
-The value of the last line is equal to
+Last line is equal to:
 
 \[\mathbb{E}[\mu|D]={m_k+\alpha_k \over {N+\alpha_0}} \]
 
 The result, just like earlier, can be interpreted as considering priors as imaginary observations.
 
-After calculating the $\mu$ of every action the suggestion is produced by using the Inverse Transform method and a uniform distribution.
+After calculating the $\mu$ of every action the suggestion is produced by using the Inverse Transform\cite{Devroye1986} method and a uniform distribution.
 
-In conclusion, the resulting model even though simple is tractable and produces expected results which are fairly robust.
+In conclusion, the resulting model ,even though simple ,is tractable and produces expected results which are robust.
 
 For further information the reader is referred to \cite{Bishop2007}. 
