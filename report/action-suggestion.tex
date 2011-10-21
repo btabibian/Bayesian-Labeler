@@ -1,12 +1,12 @@
 \section{Action Suggestion}
-Action suggestion is a special feature of this software package. The goal is to demonstrate how probabilistic Machine Learning can be used in the User Interface stack of a variety of applications. To demonstrate this, we modelled user actions with elements of probability distributions to infer the next possible action of the user; the model is then updated according to the past experiences that are observed. A suggested action is shown in a separate dock widget on the left side of the screen, and as discussed earlier the user can move them to another position on the screen if desired. Mathematical derivation of the model is not described here but can be found in Appendix \ref{InferEngine}. 
+Action suggestion is a special feature of this software package. The goal is to demonstrate how probabilistic Machine Learning can be used in the User Interface stack of a variety of applications. To demonstrate this, we modelled user actions with elements of probability distributions to infer the next possible action of the user; the model is then updated according to the past experiences that are observed. A suggested action is shown in a separate dock widget on the left side of the screen, and as discussed earlier the user can move them to another position on the screen if desired. Mathematical derivation of the model is not described here but can be found in the appendix.
 
 To build this model we made some assumptions about user actions:
 \begin{itemize}
 \item Next action of the user only depends on its previous action.
 \item Number of possible actions are limited and discrete.
 \end{itemize}
-These assumptions are made to make the model simpler and possible to implement and test within the time limits of this assignment. We assume the user has four actions, {\textit{Add}, \textit{Delete}, \textit{Open}, \textit{Save}}. Also the program is preloaded with some prior information about user behaviour after each action. Prior information can be found in table \ref{tab:priors}. This table can be interpreted as the number of times users have chosen a specific action after the action specified in the first column is observed.
+These assumptions are made to make the model simpler and possible to implement and test within the time limits of this assignment. We assume the user has four actions: {\textit{Add}, \textit{Delete}, \textit{Open}, and \textit{Save}}. Also the program is preloaded with some prior information about user behaviour after each action. Prior information can be found in table \ref{tab:priors}. This table can be interpreted as the number of times users have chosen a specific action after the action specified in the first column is observed.
 \begin{table}[t]
 \centering
 \begin{tabular}{|c|c|c|c|c|}
