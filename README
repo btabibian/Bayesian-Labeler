@@ -1,0 +1,3 @@
+Qt is required to compile the source - this should be available on dice.
+To compile the code just run ./run.sh
+The report is contained in the file report.pdf
