@@ -1,5 +1,17 @@
 \section{ Derivation of Bayesian Inference Engine}
-Every possible action of the user can be shown as a vector: $X_{act}=(open, save, edit, add)^T$ in which  $act \in {open, save, edit, add}$. Every possible action can be modelled as a \textit{Multinomial Distribution}:
+Every possible action of the user can be shown as a vector $X_{act}$ in which:
+\begin{itemize}
+\item $act \in \{open, save, edit, add\}$.
+\item every element of $X_{act}$ can take values $0,1$.
+\item $\sum X_{act} =1$. 
+\end{itemize}
+
+possible actions are also one of $(open, save, edit, add)$ and therefore the size of $X_{act} = 4$. An example vector is:
+\[ X_{open}=(0,0,0,1)^T \]
+Which is interpreted as if user chooses action open, the next action will be to add a label to the image.
+
+
+Probability distribution over all possible actions can be modelled as a \textit{Multinomial Distribution}:
 
 \[
 Mult(m_1,m_2,...,m_K|\mu,N)={N \choose m_1 m_2 ... m_K}\prod_{k=1}^K \mu_{k}^{x_k}
